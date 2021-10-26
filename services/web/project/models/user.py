@@ -1,6 +1,7 @@
 from project.models import db
-from sqlalchemy.dialects.postgresql import JSONB
+from typing import Dict
 from flask_login import UserMixin
+
 
 class User(db.Model, UserMixin):
     __tablename__ = 'user'
@@ -8,21 +9,17 @@ class User(db.Model, UserMixin):
 
     # User Authentication fields
     email = db.Column(db.String(255), nullable=False, unique=True)
-    email_confirmed_at = db.Column(db.DateTime())
     username = db.Column(db.String(50), nullable=False, unique=True)
     password = db.Column(db.String(128))
-    offer_language = db.Column(JSONB)
-    accept_language = db.Column(JSONB)
-    profile = db.Column(db.String(500), nullable=True)
+    bio = db.Column(db.Text)
     pic = db.Column(db.LargeBinary, nullable=True)
 
-    def __init__(self, email, username, password, offer_language, accept_language, profile, pic):
+    def __init__(self, email, username, password, bio, pic):
+        self._id = id
         self.email = email
         self.username = username
         self.password = password
-        self.offer_language = offer_language
-        self.accept_language = accept_language
-        self.profile = profile
+        self.bio = bio
         self.pic = pic
 
     @classmethod
@@ -42,10 +39,13 @@ class User(db.Model, UserMixin):
     def find_by_acpt_lan(cls, lancode: str, _level: int) -> "User":
         _users = User.query.join(AcceptLanguage).filter_by(language_code = lancode, level = _level)
         return _users
+    
 
     def save_to_db(self) -> None:
         db.session.add(self)
-        db.session.commit()
+        db.session.flush()
+        db.session.refresh(self)
+        return self._id
 
     def delete_from_db(self) -> None:
         db.session.delete(self)

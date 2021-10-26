@@ -1,5 +1,6 @@
 from flask_restful import Resource, reqparse
 from project.models.user import User
+from project.models.lang import AcceptLanguage, OfferLanguage
 from werkzeug.datastructures import FileStorage
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import (
@@ -30,16 +31,18 @@ _user_parser.add_argument(
     "password", type=str, required=True, help=BLANK_ERROR.format("password")
 )
 
+
 _user_parser.add_argument(
-    "offer_language", action='append', required=True, help=BLANK_ERROR.format("offer_language")
+    "offer_language",type=dict, action='append', required=True, help=BLANK_ERROR.format("offer_language")
 )
 
 _user_parser.add_argument(
-    "accept_language", action='append', required=True, help=BLANK_ERROR.format("accept_language")
+    "accept_language",type=dict,  action='append', required=True, help=BLANK_ERROR.format("accept_language")
 )
 
+
 _user_parser.add_argument(
-    "profile", type=str
+    "bio", type=str
 )
 
 _user_parser.add_argument(
@@ -68,7 +71,7 @@ class UserRegister(Resource):
     @classmethod
     def post(cls):
         data = _user_parser.parse_args()
-        print(data)
+    
         if User.find_by_username(data["username"]):
             return {"message": USER_ALREADY_EXISTS}, 400
 
@@ -77,10 +80,43 @@ class UserRegister(Resource):
 
         data.password = generate_password_hash(data.password)
         
-        user = User(**data)
-        user.save_to_db()
+        user = User(
+            username=data["username"],
+            email=data["email"],
+            password=data["password"],
+            bio=data["bio"],
+            pic=data["pic"]
+        )
+        '''
+        [{
+                "lang_code":"en",
+                "lang_name":"English",
+                "level":"3"
+            },{
+                "lang_code":"jp",
+                "lang_name":"Japanese",
+                "level":"6"
+            }]
+        '''
+        testlang = []
 
-        return {"message": CREATED_SUCCESSFULLY}, 201
+        created_user = user.save_to_db()
+    
+        for lang in data["accept_language"]:
+            
+            _lang = AcceptLanguage(
+                lang_code=lang.lang_code, lang_name=lang.lang_name, 
+                user_id=created_user.id)
+            _lang.save_to_db()
+
+        for lang in data["offer_language"]:
+            _lang = OfferLanguage(
+                level = lang.level,lang_code=lang.lang_code, lang_name=lang.lang_name, 
+                user_id=created_user.id)
+            _lang.save_to_db()
+            testlang.append(_lang.json())
+
+        return {"message": CREATED_SUCCESSFULLY, "lang":testlang}, 201
 
 
 class QueryByOfferLang(Resource):
