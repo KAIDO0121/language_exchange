@@ -1,5 +1,5 @@
 from project.models import db
-from typing import Dict
+from project.models.lang import OfferLanguage
 from flask_login import UserMixin
 
 
@@ -31,8 +31,16 @@ class User(db.Model, UserMixin):
         return cls.query.filter_by(email=email).first()
 
     @classmethod
-    def find_by_offer_lan(cls, lancode: str, _level: int) -> "User":
-        _users = User.query.join(OfferLanguage).filter_by(language_code = lancode, level = _level)
+    def find_by_offer_lan(cls, _langcode: str, _level: int) -> "User":
+     
+        ## 1. _langcode = en
+        ## 2. _langcode = en and level = 3
+
+        queries = [OfferLanguage.lang_code == _langcode]
+        if _level:
+            queries.append(OfferLanguage._level == _langcode)
+
+        _users = OfferLanguage.query.filter(*queries)
         return _users
     
     @classmethod

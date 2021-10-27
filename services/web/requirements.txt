@@ -9,3 +9,6 @@ flask-script==2.0.6
 flask_login
 gunicorn
 typing
+flask-marshmallow==0.14.0
+marshmallow-sqlalchemy
+marshmallow

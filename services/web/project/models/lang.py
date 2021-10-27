@@ -14,14 +14,14 @@ class AcceptLanguage(db.Model):
     lang_name = db.Column(db.String, nullable=False)
     
     user = relationship("User")
-    def __init__(self):
-        self.user_id = user_id
+    def __init__(self, user_id: int, lang_code: str, lang_name: str):
+        self._user_id = user_id
         self.lang_code = lang_code
         self.lang_name = lang_name
 
-    def json(self) -> langJSON:
-        return {"id": self.user_id, "lang_code": self.lang_code, 
-        "lang_name": self.lang_name}
+    # def json(self) -> langJSON:
+    #     return {"lang_code": self.lang_code, 
+    #     "lang_name": self.lang_name}
 
     def save_to_db(self) -> None:
         db.session.add(self)
@@ -37,16 +37,16 @@ class OfferLanguage(db.Model):
     level = db.Column(db.Integer, nullable=False)
     
     user = relationship("User")
-    def __init__(self):
-        self.user_id = user_id
+    def __init__(self, user_id: int, lang_code: str, lang_name: str, level: int):
+        self._user_id = user_id
         self.lang_code = lang_code
         self.lang_name = lang_name
         self.level = level
 
     
-    def json(self) -> langJSON:
-        return {"user_id": self.user_id, "lang_code": self.lang_code, 
-        "lang_name": self.lang_name, "level": self.level}
+    # def json(self) -> langJSON:
+    #     return {"lang_code": self.lang_code, 
+    #     "lang_name": self.lang_name, "level": self.level}
 
     def save_to_db(self) -> None:
         db.session.add(self)
