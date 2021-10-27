@@ -1,6 +1,10 @@
-from flask_restful import Resource, reqparse
+from flask_restful import Resource
+from flask import request
+from project.ma import ma
 from project.models.user import User
 from project.models.lang import AcceptLanguage, OfferLanguage
+from project.schemas.user import UserSchema
+from project.schemas.lang import AcceptLanguageSchema, OfferLanguageSchema
 from werkzeug.datastructures import FileStorage
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import (
@@ -18,36 +22,49 @@ INVALID_CREDENTIALS = "Invalid credentials!"
 USER_LOGGED_OUT = "User <id={user_id}> successfully logged out."
 EMAIL_ALREADY_EXISTS = "Email already exists."
 
-_user_parser = reqparse.RequestParser()
-_user_parser.add_argument(
-    "username", type=str, required=True, help=BLANK_ERROR.format("username")
-)
 
-_user_parser.add_argument(
-    "email", type=str, required=True, help=BLANK_ERROR.format("email")
-)
+user_schema = UserSchema()
 
-_user_parser.add_argument(
-    "password", type=str, required=True, help=BLANK_ERROR.format("password")
-)
+offer_schema = OfferLanguageSchema()
 
+# _user_parser = reqparse.RequestParser()
+# _user_parser.add_argument(
+#     "username", type=str, required=True, help=BLANK_ERROR.format("username")
+# )
 
-_user_parser.add_argument(
-    "offer_language",type=dict, action='append', required=True, help=BLANK_ERROR.format("offer_language")
-)
+# _user_parser.add_argument(
+#     "email", type=str, required=True, help=BLANK_ERROR.format("email")
+# )
 
-_user_parser.add_argument(
-    "accept_language",type=dict,  action='append', required=True, help=BLANK_ERROR.format("accept_language")
-)
+# _user_parser.add_argument(
+#     "password", type=str, required=True, help=BLANK_ERROR.format("password")
+# )
 
 
-_user_parser.add_argument(
-    "bio", type=str
-)
+# _user_parser.add_argument(
+#     "offer_language",type=dict, action='append', required=True, help=BLANK_ERROR.format("offer_language")
+# )
 
-_user_parser.add_argument(
-    "pic", type=FileStorage, location='files'
-)
+# _user_parser.add_argument(
+#     "accept_language",type=dict,  action='append', required=True, help=BLANK_ERROR.format("accept_language")
+# )
+
+
+# _user_parser.add_argument(
+#     "bio", type=str
+# )
+
+# _user_parser.add_argument(
+#     "pic", type=FileStorage, location='files'
+# )
+
+# _user_parser.add_argument(
+#     "_langcode", type=str
+# )
+
+# _user_parser.add_argument(
+#     "_level", type=int
+# )
 
 
 class UserLogin(Resource):
@@ -70,15 +87,23 @@ class UserLogin(Resource):
 class UserRegister(Resource):
     @classmethod
     def post(cls):
-        data = _user_parser.parse_args()
-    
+        user_json = request.get_json()
+        data = user_schema.load(user_json)
+       
         if User.find_by_username(data["username"]):
             return {"message": USER_ALREADY_EXISTS}, 400
 
         if User.find_by_email(data["email"]):
             return {"message": EMAIL_ALREADY_EXISTS}, 400
 
-        data.password = generate_password_hash(data.password)
+        data["password"] = generate_password_hash(data["password"])
+
+        if not 'bio' in data:
+            data["bio"] = None
+
+        if not 'pic' in data:
+            data["pic"] = None
+        
         
         user = User(
             username=data["username"],
@@ -87,46 +112,32 @@ class UserRegister(Resource):
             bio=data["bio"],
             pic=data["pic"]
         )
-        '''
-        [{
-                "lang_code":"en",
-                "lang_name":"English",
-                "level":"3"
-            },{
-                "lang_code":"jp",
-                "lang_name":"Japanese",
-                "level":"6"
-            }]
-        '''
-        testlang = []
-
-        created_user = user.save_to_db()
+        _id = user.save_to_db()
     
         for lang in data["accept_language"]:
             
             _lang = AcceptLanguage(
-                lang_code=lang.lang_code, lang_name=lang.lang_name, 
-                user_id=created_user.id)
+                lang_code=lang['langCode'], lang_name=lang['langName'], 
+                user_id=_id)
             _lang.save_to_db()
 
         for lang in data["offer_language"]:
             _lang = OfferLanguage(
-                level = lang.level,lang_code=lang.lang_code, lang_name=lang.lang_name, 
-                user_id=created_user.id)
+                level = lang['level'],lang_code=lang['langCode'], lang_name=lang['langName'], 
+                user_id=_id)
             _lang.save_to_db()
-            testlang.append(_lang.json())
+           
 
-        return {"message": CREATED_SUCCESSFULLY, "lang":testlang}, 201
-
+        return {"message": CREATED_SUCCESSFULLY}, 201
 
 class QueryByOfferLang(Resource):
-   
+    
     @classmethod
-    def get(cls, lang: dict):
-        user = cls.query.filter(User.offer_language.contains(lang)).first()
-        if not user:
-            return {"message": USER_NOT_FOUND}, 404
-        return user.json(), 200
+    def get(cls):
+        args = request.args
+        print(args)
+        user = OfferLanguage.find_by_offer_lan(args._langcode, args._level)
+        return offer_schema.dump(user), 200
 
 
 class QueryByAcceptLang(Resource):
