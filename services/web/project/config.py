@@ -13,3 +13,4 @@ class Config(object):
         "refresh",
     ]  # allow blacklisting for access and refresh tokens
     JWT_SECRET_KEY = "mdfk"
+    UPLOADED_IMAGES_DEST = '/usr/src/app/project/static/images' # manage root folder

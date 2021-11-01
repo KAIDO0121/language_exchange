@@ -3,7 +3,7 @@ Flask-SQLAlchemy
 psycopg2-binary
 flask-restful
 flask-jwt-extended
-werkzeug
+werkzeug==0.16.1
 flask-migrate==2.1.1
 flask-script==2.0.6
 flask_login
@@ -11,3 +11,5 @@ gunicorn
 flask-marshmallow==0.14.0
 marshmallow-sqlalchemy
 marshmallow
+flask-uploads
+typing

@@ -8,7 +8,8 @@ from werkzeug.datastructures import FileStorage
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import (
     create_access_token,
-    create_refresh_token
+    create_refresh_token,
+    jwt_required
 )
 # from blacklist import BLACKLIST
 
@@ -24,9 +25,9 @@ user_schema = UserSchema()
 
 user_lang_schema = UserAndLangSchema(many=True)
 
-offer_schema = OfferLanguageSchema()
+offer_schema = OfferLanguageSchema(many=True)
 
-acpt_schema = AcceptLanguageSchema()
+acpt_schema = AcceptLanguageSchema(many=True)
 
 
 class UserLogin(Resource):
@@ -79,6 +80,7 @@ class QueryByOfferLang(Resource):
 
 class EditProfile(Resource): 
     @classmethod
+    @jwt_required()
     def put(cls):
         user_json = request.get_json()
         user = User.find_by_username(user_json["username"])
