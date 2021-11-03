@@ -1,6 +1,7 @@
 from project.ma import ma
 from project.models.user import User
 from project.schemas.lang import AcceptLanguageSchema, OfferLanguageSchema
+from project.schemas.image import ImageSchema
 from marshmallow import fields
 
 
@@ -21,7 +22,6 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
     '''
     user_acpt_lang = fields.Nested(AcceptLanguageSchema, many=True, required=True)
     user_offer_lang = fields.Nested(OfferLanguageSchema, many=True, required=True)
-    
 
 class UserAndLangSchema(ma.SQLAlchemyAutoSchema):
     class Meta:

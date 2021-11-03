@@ -13,7 +13,8 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(50), nullable=False, unique=True)
     password = db.Column(db.String(128))
     bio = db.Column(db.Text)
-    # pic = db.Column(db.LargeBinary, nullable=True)
+    pic = db.Column(db.LargeBinary, nullable=True)
+    picName = db.Column(db.String(128), nullable=False)
 
     @classmethod
     def find_by_username(cls, username: str) -> "User":

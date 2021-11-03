@@ -1,5 +1,6 @@
 from flask_restful import Resource
 from flask import request
+from project.libs import image_helper
 from project.models.user import User
 from project.models.lang import AcceptLanguage, OfferLanguage
 from project.schemas.user import UserSchema, UserAndLangSchema
@@ -50,7 +51,13 @@ class UserRegister(Resource):
     @classmethod
     def post(cls):
         user_json = request.get_json()
-    
+        print(user_json)
+        user_json["pic"] = {}
+        user_json["pic"] = request.files["image"]
+            # here we only return the basename of the image and hide the internal folder structure from our user
+        user_json["picName"] = ""
+        user_json["picName"] = request.files["image"].filename
+        
         user = user_schema.load(user_json) ## JSON -> load -> 使用marshmallow驗證USER model
         
         if User.find_by_username(user.username):
