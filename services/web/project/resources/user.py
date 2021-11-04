@@ -1,11 +1,11 @@
 from flask_restful import Resource
 from flask import request
-from project.libs import image_helper
 from project.models.user import User
 from project.models.lang import AcceptLanguage, OfferLanguage
 from project.schemas.user import UserSchema, UserAndLangSchema
 from project.schemas.lang import AcceptLanguageSchema, OfferLanguageSchema
-from werkzeug.datastructures import FileStorage
+from base64 import b64encode
+import base64
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import (
     create_access_token,
@@ -119,4 +119,17 @@ class QueryByAcceptLang(Resource):
         users = User.find_by_acpt_lan(request.args.getlist('_langname')[0])
 
         return user_lang_schema.dump(users), 200
+
+class GetUserProfile(Resource):
+    
+    @classmethod
+    def get(cls):
+        
+        userid = request.args.getlist('userid')[0]
+        user = User.query.filter_by(id=userid).first()
+
+        pic = base64.b64encode(user.pic).decode('ascii') 
+        _user = user_schema.dump(user)
+        _user["pic"] = pic
+        return _user, 200
 

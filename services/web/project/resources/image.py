@@ -1,5 +1,5 @@
 from flask_restful import Resource
-from flask_uploads import UploadNotAllowed
+from flask_uploads import UploadNotAllowed, IMAGES
 from project.models.user import User
 from flask import send_file, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -8,8 +8,11 @@ import os
 
 from project.libs import image_helper
 from project.schemas.image import ImageSchema
+from project.schemas.user import UserSchema
 
 image_schema = ImageSchema()
+
+user_schema = UserSchema()
 
 
 class ImageUpload(Resource):
@@ -83,41 +86,27 @@ class Image(Resource):
 class AvatarUpload(Resource):
     @jwt_required()
     def put(self):
-        """
-        This endpoint is used to upload user avatar. All avatars are named after the user's id
-        in such format: user_{id}.{ext}.
-        It will overwrite the existing avatar.
-        """
+
         data = image_schema.load(request.files)
-        # filename = f"user_{get_jwt_identity()}"
 
-        # folder = "avatars"
-        # avatar_path = image_helper.find_image_any_format(filename, folder)
-        # if avatar_path:
-        #     try:
-        #         os.remove(avatar_path)
-        #     except:
-        #         return {"message": gettext("avatar_delete_failed")}, 500
+        ext = image_helper.get_extension(data["image"].filename)
+       
+        if ext[1:] not in IMAGES :
+            return {"message": 'Extension: {ext} is illegal' }, 400
 
-        try:
-            ext = image_helper.get_extension(data["image"].filename)
-            user = User.query.filter_by(id=get_jwt_identity()).first()
+        fileName = image_helper.is_filename_safe(data["image"].filename)
 
-            if user:
-                user.pic = data["image"].read()
+        if not fileName :
+            return {"message": 'Filename: {fileName} is illegal' }, 400
+
+        user = User.query.filter_by(id=get_jwt_identity()).first()
+
+        if user:                
+            user.pic = data["image"].read()
         
             user.save_to_db()
 
-            # avatar = filename + ext  # use our naming format + true extension
-            # avatar_path = image_helper.save_image(
-            #     data["image"], folder=folder, name=avatar
-            # )
-            # basename = image_helper.get_basename(avatar_path)
             return {"message": f'Filename: Avatar is uploaded' }, 200
-        except UploadNotAllowed:  # forbidden file type
-            extension = image_helper.get_extension(data["image"])
-            return {"message": f'Filename: {extension} is illegal' }, 400
-
 
 class Avatar(Resource):
     @classmethod

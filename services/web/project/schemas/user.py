@@ -9,7 +9,7 @@ from marshmallow import fields
 class UserSchema(ma.SQLAlchemyAutoSchema):
    
     class Meta:
-        load_only = ('password',)
+        load_only = ('password','pic', )
         model = User
         load_instance = True
         
