@@ -12,8 +12,6 @@ services:
       - ./.env.prod
     depends_on:
       - db
-    entrypoint:
-      - /home/app/web/entrypoint.prod.sh
   db:
     image: postgres:13-alpine
     volumes:
@@ -22,7 +20,6 @@ services:
       - ./.env.prod.db
   nginx:
     build: ./services/nginx
-    restart: always
     ports:
       - 1337:80
     depends_on:
