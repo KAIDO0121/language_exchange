@@ -1,0 +1,30 @@
+.home-bg {
+    background-image: url('../style/home.jpg');
+    width:100vw;
+    height:100vh; 
+    box-sizing:border-box;
+}
+
+.login_box{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.title{
+    margin: 1rem;
+    
+    color: rgb(255, 255, 255, 0.9);
+}
+
+a {
+    color: #0060B6;
+    text-decoration: none;
+}
+
+a:hover {
+    color:#00A0C6; 
+    text-decoration:none; 
+    cursor:pointer;  
+}

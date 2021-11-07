@@ -14,6 +14,4 @@ fi
 
 
 python manage.py create_db
-python manage.py runserver
-
 exec "$@"
