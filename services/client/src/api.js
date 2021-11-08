@@ -6,4 +6,5 @@ const userRequest = axios.create({
 })
 
 export const userLogin = data => userRequest.post('/api/login', data)
-export const registerUser = url => userRequest.get(url)
+export const registerUser = data => userRequest.post('/api/login', data)
+export const getAllLang = () => userRequest.get('/api/getAllLang')

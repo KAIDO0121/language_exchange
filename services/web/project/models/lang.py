@@ -1,4 +1,3 @@
-from sqlalchemy.orm import relationship
 from project.models import db
 
 class AcceptLanguage(db.Model):
@@ -6,6 +5,7 @@ class AcceptLanguage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     lang_name = db.Column(db.String, nullable=False)
+    level = db.Column(db.Integer, nullable=False)
     
 
     def save_to_db(self):

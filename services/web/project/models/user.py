@@ -1,4 +1,3 @@
-from sqlalchemy.orm import session
 from project.models import db
 from project.models.lang import OfferLanguage
 from flask_login import UserMixin
