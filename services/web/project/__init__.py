@@ -3,7 +3,7 @@ from flask_jwt_extended import JWTManager
 from project.blacklist import BLACKLIST
 from flask_restful import Api
 from flask_uploads import configure_uploads, patch_request_class
-from project.resources.user import UserRegister, QueryByOfferLang, QueryByAcceptLang, UserLogin, EditProfile, GetUserProfile, GetAllLang
+from project.resources.user import CheckEmail, CheckUserName, UserRegister, QueryByOfferLang, QueryByAcceptLang, UserLogin, EditProfile, GetUserProfile, GetAllLang
 from project.resources.image import AvatarUpload
 from flask_migrate import Migrate
 from project.ma import ma
@@ -28,6 +28,8 @@ def create_app():
         return jwt_payload["jti"] in BLACKLIST
 
     api.add_resource(UserRegister, "/api/register")
+    api.add_resource(CheckEmail, "/api/checkEmail")
+    api.add_resource(CheckUserName, "/api/checkUserName")
     api.add_resource(UserLogin, "/api/login")
     api.add_resource(QueryByOfferLang, "/api/searchOfferLang")
     api.add_resource(QueryByAcceptLang, "/api/searchAcptLang")

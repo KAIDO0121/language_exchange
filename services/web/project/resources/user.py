@@ -235,19 +235,13 @@ class UserRegister(Resource):
     def post(cls):
         user_json = request.get_json()
         
-        user = user_schema.load(user_json) ## JSON -> load -> 使用marshmallow驗證USER model
-        
-        if User.find_by_username(user.username):
-            return {"message": USER_ALREADY_EXISTS}, 400
-
-        if User.find_by_email(user.email):
-            return {"message": EMAIL_ALREADY_EXISTS}, 400
+        user = user_schema.load(user_json)
 
         user.password = generate_password_hash(user.password)
 
         b = user.save_to_db()
        
-        return user_schema.dump(b), 201
+        return {"user":user_schema.dump(b), "errorCode":0}, 201
 
 class QueryByOfferLang(Resource):
     
@@ -305,3 +299,22 @@ class GetUserProfile(Resource):
         _user["pic"] = pic
         return _user, 200
 
+class CheckUserName(Resource):
+    @classmethod
+    def get(cls):
+        user_name = request.args.getlist('username')[0]
+        
+        if User.find_by_username(user_name):
+            return {"message": USER_ALREADY_EXISTS}, 400
+       
+        return {"message": "User Name is available", "errorCode": 0 }, 201
+
+class CheckEmail(Resource):
+    @classmethod
+    def get(cls):
+        email = request.args.getlist('email')[0]
+        
+        if User.find_by_email(email):
+            return {"message": EMAIL_ALREADY_EXISTS}, 400
+       
+        return {"message": "Email is available", "errorCode": 0 }, 201
