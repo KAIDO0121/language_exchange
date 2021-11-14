@@ -7,7 +7,7 @@ class AcceptLanguageSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = AcceptLanguage
         load_instance = True
-        dump_only = ("id",)
+        exclude = ("id", "user_id",)
     '''
     id = fields.Integer(dump_only=True)
     lang_name = fields.String(required=True)
@@ -19,7 +19,7 @@ class OfferLanguageSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = OfferLanguage
         load_instance = True
-        dump_only = ("id",)
+        exclude = ("id", "user_id",)
     '''
     id = fields.Integer(dump_only=True)
     lang_name = fields.String(required=True)

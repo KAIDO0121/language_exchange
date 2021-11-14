@@ -92,12 +92,12 @@ class AvatarUpload(Resource):
         ext = image_helper.get_extension(data["image"].filename)
        
         if ext[1:] not in IMAGES :
-            return {"message": 'Extension: {ext} is illegal' }, 400
+            return {"message": 'Extension: {ext} is illegal', "errorCode": 1 }, 200
 
         fileName = image_helper.is_filename_safe(data["image"].filename)
 
         if not fileName :
-            return {"message": 'Filename: {fileName} is illegal' }, 400
+            return {"message": 'Filename: {fileName} is illegal', "errorCode": 2 }, 200
 
         user = User.query.filter_by(id=get_jwt_identity()).first()
 
@@ -106,7 +106,9 @@ class AvatarUpload(Resource):
         
             user.save_to_db()
 
-            return {"message": f'Filename: Avatar is uploaded' }, 200
+            return {"message": f'Filename: {data["image"].filename} is uploaded', "errorCode": 0 }, 200
+        else:
+            return {"message": "Invalid credential", "errorCode": 3 }, 200
 
 class Avatar(Resource):
     @classmethod

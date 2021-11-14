@@ -1,14 +1,18 @@
 from flask_restful import Resource
+import re
 from flask import request
 from project.models.user import User
 from project.schemas.user import UserSchema, UserAndLangSchema
 from project.schemas.lang import AcceptLanguageSchema, OfferLanguageSchema
 import base64
+from project.blacklist import BLACKLIST
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
-    jwt_required
+    jwt_required,
+    get_jwt_identity,
+    get_jwt
 )
 # from blacklist import BLACKLIST
 
@@ -206,6 +210,8 @@ allLang = [{ 'code' : 'ab', 'name' : 'Abkhazian' },
 
 user_schema = UserSchema()
 
+my_lang_schema = UserSchema(include=['user_acpt_lang','user_offer_lang'])
+
 user_lang_schema = UserAndLangSchema(many=True)
 
 offer_schema = OfferLanguageSchema(many=True)
@@ -213,21 +219,38 @@ offer_schema = OfferLanguageSchema(many=True)
 acpt_schema = AcceptLanguageSchema(many=True)
 
 
+class UserLogout(Resource):
+    @classmethod
+    @jwt_required
+    def post(cls):
+        jti = get_jwt()["jti"]
+        BLACKLIST.add(jti)
+        return {"message": "Logged out successfully", "errorCode": 0}, 200
+
 class UserLogin(Resource):
     @classmethod
     def post(cls):
         user_json = request.get_json()
         user = User.find_by_username(user_json['username'])
-        
         # this is what the `authenticate()` function did in security.py
         if user and check_password_hash(user.password, user_json['password']):
             # identity= is what the identity() function did in security.py—now stored in the JWT
             access_token = create_access_token(identity=user.id, fresh=True)
             refresh_token = create_refresh_token(user.id)
             return {"access_token": access_token, "refresh_token": refresh_token, "errorCode": 0}, 200
+        if not user:
+            return {"message": "User name not found", "errorCode": 2}, 200
+        if not check_password_hash(user.password, user_json['password']):
+            return {"message": "Password wrong", "errorCode": 3}, 200
 
         return {"message": INVALID_CREDENTIALS, "errorCode": 1}, 200
 
+class TokenRefresh(Resource):
+    @jwt_required(refresh=True)
+    def get(self):
+        current_user = get_jwt_identity()
+        new_token = create_access_token(identity=current_user, fresh=False)
+        return {"access_token": new_token}, 200
 
 
 class UserRegister(Resource):
@@ -241,7 +264,7 @@ class UserRegister(Resource):
 
         b = user.save_to_db()
        
-        return {"user":user_schema.dump(b), "errorCode":0}, 201
+        return {"user":user_schema.dump(b), "errorCode":0}, 200
 
 class QueryByOfferLang(Resource):
     
@@ -260,17 +283,21 @@ class EditProfile(Resource):
     @classmethod
     @jwt_required()
     def put(cls):
+     
+        user = User.query.filter_by(id=get_jwt_identity()).first()
         user_json = request.get_json()
-        user = User.find_by_username(user_json["username"])
         
         if user:
             user.bio = user_json["bio"]
             user.user_offer_lang = offer_schema.load(user_json["user_offer_lang"]) 
             user.user_acpt_lang = acpt_schema.load(user_json["user_acpt_lang"]) 
       
-        user.save_to_db()
+            user.save_to_db()
 
-        return user_schema.dump(user), 200
+            return {"updatedProfile":user_schema.dump(user), "message":"", "errorCode": 0}, 200
+
+        else:
+            return {"message": "Invalid credential", "errorCode": 1}, 200
 
 class GetAllLang(Resource): 
     @classmethod
@@ -286,35 +313,61 @@ class QueryByAcceptLang(Resource):
 
         return user_lang_schema.dump(users), 200
 
-class GetUserProfile(Resource):
+class GetMyProfile(Resource):
     
     @classmethod
+    @jwt_required()
     def get(cls):
         
-        userid = request.args.getlist('userid')[0]
-        user = User.query.filter_by(id=userid).first()
+        user = User.query.filter_by(id=get_jwt_identity()).first()
 
         pic = base64.b64encode(user.pic).decode('ascii') 
         _user = user_schema.dump(user)
-        _user["pic"] = pic
-        return _user, 200
+        _user["pic"] = "data:image/png;base64, " + pic
+        return {"userprofile":_user, "errorCode": 0}, 200
+
+class GetMyLangs(Resource):
+    
+    @classmethod
+    @jwt_required()
+    def get(cls):
+        
+        user = User.query.filter_by(id=get_jwt_identity()).first()
+        _user = my_lang_schema.dump(user)
+        
+        return {"langs":_user, "errorCode": 0}, 200
 
 class CheckUserName(Resource):
     @classmethod
     def get(cls):
-        user_name = request.args.getlist('username')[0]
+        if request.args.getlist('username'):
+            user_name = request.args.getlist('username')[0]
+            is_valid = re.match("^(?=.{8,20}$)[a-zA-Z0-9_.-]+$", user_name)
         
-        if User.find_by_username(user_name):
-            return {"message": USER_ALREADY_EXISTS}, 400
-       
-        return {"message": "User Name is available", "errorCode": 0 }, 201
+            if not is_valid:
+                return {"message": "User Name must be 8-20 characters, alphanumeric and special characters (_.-) is allowed.", "errorCode": 1 }, 200
+
+            if User.find_by_username(user_name):
+                return {"message": USER_ALREADY_EXISTS, "errorCode": 2 }, 200
+        
+            return {"message": "User Name is available", "errorCode": 0 }, 200
+        else:
+            return {"message": "User Name must be 8-20 characters, alphanumeric and special characters (_.-) is allowed.", "errorCode": 1 }, 200
 
 class CheckEmail(Resource):
     @classmethod
     def get(cls):
-        email = request.args.getlist('email')[0]
+        if request.args.getlist('email'):
+            regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+            email = request.args.getlist('email')[0]
+            is_valid = re.match(regex, email)
+
+            if not is_valid:
+                return {"message": "Email format is invalid", "errorCode": 1 }, 200
+
+            if User.find_by_email(email):
+                return {"message": EMAIL_ALREADY_EXISTS, "errorCode": 2 }, 200
         
-        if User.find_by_email(email):
-            return {"message": EMAIL_ALREADY_EXISTS}, 400
-       
-        return {"message": "Email is available", "errorCode": 0 }, 201
+            return {"message": "Email is available", "errorCode": 0 }, 200
+        else:
+            return {"message": "Email format is invalid", "errorCode": 1 }, 200

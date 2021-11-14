@@ -4,18 +4,40 @@
     height:100vh; 
     box-sizing:border-box;
 }
+.bg2 {
+    background-image: url('../style/search-bg.jpg');
+    width:100vw;
+    height:100vh; 
+    box-sizing:border-box;
+}
 
-.login_box{
+.center{
     position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
 }
 
+.image-container {
+    display: flex;
+    justify-content: center;
+  }
+
+.b-b-default {
+    border-bottom: 1px solid #e0e0e0
+}
+
+.text-left{
+    text-align: left;
+}
+
 .title{
     margin: 1rem;
-    
     color: rgb(255, 255, 255, 0.9);
+}
+
+.register{
+    width: 80vw;
 }
 
 a {
@@ -27,4 +49,9 @@ a:hover {
     color:#00A0C6; 
     text-decoration:none; 
     cursor:pointer;  
+}
+
+.bio {
+    resize: vertical; 
+    max-height: 150px;
 }
