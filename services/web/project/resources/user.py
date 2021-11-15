@@ -210,7 +210,7 @@ allLang = [{ 'code' : 'ab', 'name' : 'Abkhazian' },
 
 user_schema = UserSchema()
 
-my_lang_schema = UserSchema(include=['user_acpt_lang','user_offer_lang'])
+my_lang_schema = UserSchema(only=['user_acpt_lang','user_offer_lang'])
 
 user_lang_schema = UserAndLangSchema(many=True)
 
@@ -221,7 +221,7 @@ acpt_schema = AcceptLanguageSchema(many=True)
 
 class UserLogout(Resource):
     @classmethod
-    @jwt_required
+    @jwt_required()
     def post(cls):
         jti = get_jwt()["jti"]
         BLACKLIST.add(jti)

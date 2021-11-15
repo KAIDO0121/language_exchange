@@ -3,8 +3,7 @@ import React, { useState, useEffect } from "react";
 import { getAllLang, getMyLangs } from "../api";
 
 export const useSelLang = () => {
-
-    const [selLang, setSelLang] = useState({
+	const [selLang, setSelLang] = useState({
 		user_offer_lang: [
 			{
 				lang_name: "Chinese",
@@ -32,100 +31,94 @@ export const useSelLang = () => {
 				lang_name: "Arabic",
 				level: 3
 			}
-		],
-		username: "",
-		password: "",
-		email: "",
-        pic: null,
-        bio:""
+		]
 	});
 
-    const [allLang, setAllLang] = useState([]);
+	const [allLang, setAllLang] = useState([]);
 
-    const selectLevelHandler = ({ type, index, level }) => {
-        if (type === "acpt") {
-            setSelLang(prev => {
-                //  保留acpt_lang的其餘屬性，只改變acpt_lang[1].level
-                const update = prev.user_acpt_lang;
-    
-                update[index] = {
-                    lang_name: update[index].lang_name,
-                    level
-                };
-    
-                return {
-                    ...prev,
-                    user_acpt_lang: update
-                };
-            });
-        } else {
-            setSelLang(prev => {
-                const update = prev.user_offer_lang;
-    
-                update[index] = {
-                    lang_name: update[index].lang_name,
-                    level
-                };
-    
-                return {
-                    ...prev,
-                    user_offer_lang: update
-                };
-            });
-        }
-    };
-    
-    const selectLangHandler = ({ type, index, name }) => {
-      if (type === "acpt") {
-        setSelLang((prev) => {
-          //  保留acpt_lang的其餘屬性，只改變acpt_lang[1].level
-          const update = prev.user_acpt_lang;
+	const selectLevelHandler = ({ type, index, level }) => {
+		if (type === "acpt") {
+			setSelLang(prev => {
+				//  保留acpt_lang的其餘屬性，只改變acpt_lang[1].level
+				const update = prev.user_acpt_lang;
 
-          update[index] = {
-            lang_name: name,
-            level: update[index].level,
-          };
+				update[index] = {
+					lang_name: update[index].lang_name,
+					level
+				};
 
-          return {
-            ...prev,
-            user_acpt_lang: update,
-          };
-        });
-      } else {
-        setSelLang((prev) => {
-          const update = prev.user_offer_lang;
+				return {
+					...prev,
+					user_acpt_lang: update
+				};
+			});
+		} else {
+			setSelLang(prev => {
+				const update = prev.user_offer_lang;
 
-          update[index] = {
-            lang_name: name,
-            level: update[index].level,
-          };
+				update[index] = {
+					lang_name: update[index].lang_name,
+					level
+				};
 
-          return {
-            ...prev,
-            user_offer_lang: update,
-          };
-        });
-      }
-    };
-    
-    useEffect(() => {
-        getAllLang().then((res) => {
-            setAllLang(res.data);
-        })
-        .catch((error) => {
-            console.error(error);
-        });
+				return {
+					...prev,
+					user_offer_lang: update
+				};
+			});
+		}
+	};
 
-        getMyLangs().then((res) => {
-            setSelLang(res.data);
-        })
-        .catch((error) => {
-            console.error(error);
-        });
-    }, []);
+	const selectLangHandler = ({ type, index, name }) => {
+		if (type === "acpt") {
+			setSelLang(prev => {
+				//  保留acpt_lang的其餘屬性，只改變acpt_lang[1].level
+				const update = prev.user_acpt_lang;
 
-    return { allLang, selectLevelHandler, selectLangHandler, selLang }
-}
+				update[index] = {
+					lang_name: name,
+					level: update[index].level
+				};
 
+				return {
+					...prev,
+					user_acpt_lang: update
+				};
+			});
+		} else {
+			setSelLang(prev => {
+				const update = prev.user_offer_lang;
 
+				update[index] = {
+					lang_name: name,
+					level: update[index].level
+				};
 
+				return {
+					...prev,
+					user_offer_lang: update
+				};
+			});
+		}
+	};
+
+	useEffect(() => {
+		getAllLang()
+			.then(res => {
+				setAllLang(res.data);
+			})
+			.catch(error => {
+				console.error(error);
+			});
+
+		getMyLangs()
+			.then(res => {
+				setSelLang(res.data.langs);
+			})
+			.catch(error => {
+				console.error(error);
+			});
+	}, []);
+
+	return { allLang, selectLevelHandler, selectLangHandler, selLang };
+};
