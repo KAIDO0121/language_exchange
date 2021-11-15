@@ -19,6 +19,7 @@ import { useSelLang } from "../component/hook";
 
 const Register = () => {
 	const navigate = useNavigate();
+
 	// const { allLang, selectLevelHandler, selectLangHandler, selLang } =
 	// 	useSelLang();
 	const { setPopbox } = useContext(PopBoxCxt);

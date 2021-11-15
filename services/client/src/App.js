@@ -22,7 +22,6 @@ const App = () => {
       tokenRefresh()
         .then((res) => {
           localStorage.setItem("access_token", res.data.access_token);
-          console.log("token updated");
         })
         .catch((err) => console.error(err));
     }, 240000)
@@ -30,26 +29,25 @@ const App = () => {
   return (
     <>
       <PopBoxCxt.Provider value={{ setPopbox }}>
-        <PopBox isShow={popbox.isShow} content={popbox.content} />
+          <PopBox isShow={popbox.isShow} content={popbox.content} />
 
-        <Router>
-          <Menu>
-            <Link className="menu-item" to="/">
-              Home
-            </Link>
-            <Link className="menu-item" to="/dashboard">
-              Dashboard
-            </Link>
-           
-          </Menu>
-          <Routes>
-            <Route exact path="/" element={<Home />}></Route>
-            <Route path="/register" element={<Register />}></Route>
-            <Route path="/login" element={<Login />}></Route>
-            <Route path="/uploadAvatar" element={<UploadAvatar />}></Route>
-            <Route path="/dashboard" element={<Dashboard />}></Route>
-          </Routes>
-        </Router>
+          <Router>
+            <Menu>
+              <Link className="menu-item" to="/">
+                Home
+              </Link>
+              <Link className="menu-item" to="/dashboard">
+                Dashboard
+              </Link>
+            </Menu>
+            <Routes>
+              <Route exact path="/" element={<Home />}></Route>
+              <Route path="/register" element={<Register />}></Route>
+              <Route path="/login" element={<Login />}></Route>
+              <Route path="/uploadAvatar" element={<UploadAvatar />}></Route>
+              <Route path="/dashboard" element={<Dashboard />}></Route>
+            </Routes>
+          </Router>
       </PopBoxCxt.Provider>
     </>
   );

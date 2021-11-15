@@ -286,14 +286,14 @@ class EditProfile(Resource):
      
         user = User.query.filter_by(id=get_jwt_identity()).first()
         user_json = request.get_json()
-        
+        print(user.pic)
         if user:
             user.bio = user_json["bio"]
             user.user_offer_lang = offer_schema.load(user_json["user_offer_lang"]) 
             user.user_acpt_lang = acpt_schema.load(user_json["user_acpt_lang"]) 
       
             user.save_to_db()
-
+            print(user.pic)
             return {"updatedProfile":user_schema.dump(user), "message":"", "errorCode": 0}, 200
 
         else:
