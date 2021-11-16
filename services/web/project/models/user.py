@@ -35,11 +35,19 @@ class User(db.Model, UserMixin):
             print(e)
     
     @classmethod
-    def find_by_acpt_lan(cls,  _langname: str) -> "User":
+    def match_by_langs(cls,  payload: list) -> "User":
         try:
-            _users = cls.query.join(AcceptLanguage).filter(AcceptLanguage.lang_name==_langname)
-
-            return _users.all()
+           
+            for offer_lang in payload["user_offer_lang"]:
+                _users = cls.query.join(AcceptLanguage).join(OfferLanguage).filter(and_(
+                    AcceptLanguage.lang_name==offer_lang.lang_name, 
+                    AcceptLanguage.level==offer_lang.level
+                ))
+                for acpt_lang in payload["user_acpt_lang"]:
+                    _users
+            # _users = cls.query.join(AcceptLanguage).join(OfferLanguage).filter(AcceptLanguage.lang_name==_langname)
+            print(payload)
+            return 1
         except Exception as e:
             print(e)    
 

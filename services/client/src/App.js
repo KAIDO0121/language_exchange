@@ -11,6 +11,7 @@ import UploadAvatar from './pages/uploadAvatar';
 import { tokenRefresh } from './api'
 import Dashboard from './pages/dashboard';
 import { slide as Menu } from 'react-burger-menu'
+import Search from './pages/search';
 
 const App = () => {
   const [popbox, setPopbox] = useState({
@@ -46,6 +47,7 @@ const App = () => {
               <Route path="/login" element={<Login />}></Route>
               <Route path="/uploadAvatar" element={<UploadAvatar />}></Route>
               <Route path="/dashboard" element={<Dashboard />}></Route>
+              <Route path="/search" element={<Search />}></Route>
             </Routes>
           </Router>
       </PopBoxCxt.Provider>

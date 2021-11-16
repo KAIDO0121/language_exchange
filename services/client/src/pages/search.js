@@ -1,61 +1,64 @@
 import React, { useState, useContext } from "react";
 import { PopBoxCxt } from '../component/contexts'
 import Form from "react-bootstrap/Form";
-import InputGroup from 'react-bootstrap/InputGroup'
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
-import { useNavigate } from "react-router-dom";
-import { getAllLang, getMyLangs, editProfile } from "../api";
+import { useSelLang } from "../component/hook";
+import { matchUserByLang } from "../api";
+import LangGroup from "../component/langGroup";
 
 const Search = () => {
     const { setPopbox } = useContext(PopBoxCxt);
-    const [form, setForm] = useState({
-        user_offer_lang: [
-          {
-            lang_name: "Chinese",
-            level: 3,
-          },
-          {
-            lang_name: "Swedish",
-            level: 6,
-          },
-          {
-            lang_name: "Danish",
-            level: 6,
-          },
-        ],
-        user_acpt_lang: [
-          {
-            lang_name: "Chinese",
-            level: 3,
-          },
-          {
-            lang_name: "Swedish",
-            level: 3,
-          },
-          {
-            lang_name: "Arabic",
-            level: 3,
-          },
-        ],
-    });
-    const [allLang, setAllLang] = useState([]);
-  
-    const [status, setStatus] = useState({
-      status: null,
-      msg: "",
-    });
-    return (
-        <div className="bg2">
-            <Card className="text-center center">
-                <Card.Body>
-                    <Form>
+    
+    const { allLang, selectLevelHandler, selectLangHandler, selLang } =
+		useSelLang();
 
-                    </Form>
-                </Card.Body>
-            </Card>
-        </div>
-    )
+    const submit = async () => {
+
+      try {
+        const response = await matchUserByLang(selLang);
+        
+        /*
+        if (response.data.errorCode === 2) {
+          setStatus(prev => ({
+            ...prev,
+            username: {
+              status: false,
+              msg: response.data.message
+            }
+          }));
+        } 
+        */
+      } catch (error) {
+        console.error(error);
+        setPopbox({
+          isShow: true,
+          content: "Server error",
+        });
+      }
+      
+  }
+  
+
+    return (
+      <div className="bg2">
+        <Card className="text-center center">
+          <Card.Body>
+            <Form>
+              <LangGroup
+                allLang={allLang}
+                selectLevelHandler={selectLevelHandler}
+                selectLangHandler={selectLangHandler}
+                form={selLang}
+              />
+            </Form>
+            <Button onClick={submit} variant="light" type="button">
+              Find Partners
+            </Button>
+          </Card.Body>
+        </Card>
+      </div>
+    );
 }
 
 export default Search

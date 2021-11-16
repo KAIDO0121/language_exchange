@@ -3,7 +3,7 @@ from flask_jwt_extended import JWTManager
 from project.blacklist import BLACKLIST
 from flask_restful import Api
 from flask_uploads import configure_uploads, patch_request_class
-from project.resources.user import TokenRefresh, CheckEmail, GetMyLangs, UserLogout, CheckUserName, UserRegister, QueryByOfferLang, QueryByAcceptLang, UserLogin, EditProfile, GetMyProfile, GetAllLang
+from project.resources.user import TokenRefresh, MatchUserByLang, CheckEmail, GetMyLangs, UserLogout, CheckUserName, UserRegister, UserLogin, EditProfile, GetMyProfile, GetAllLang
 from project.resources.image import AvatarUpload
 from flask_migrate import Migrate
 from project.ma import ma
@@ -31,8 +31,7 @@ def create_app():
     api.add_resource(CheckEmail, "/api/checkEmail")
     api.add_resource(CheckUserName, "/api/checkUserName")
     api.add_resource(UserLogin, "/api/login")
-    api.add_resource(QueryByOfferLang, "/api/searchOfferLang")
-    api.add_resource(QueryByAcceptLang, "/api/searchAcptLang")
+    api.add_resource(MatchUserByLang, "/api/matchUserByLang")
     api.add_resource(EditProfile, "/api/editProfile")
     api.add_resource(AvatarUpload, "/api/uploadPic")
     api.add_resource(GetMyProfile, "/api/getMyProfile")

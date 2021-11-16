@@ -266,18 +266,54 @@ class UserRegister(Resource):
        
         return {"user":user_schema.dump(b), "errorCode":0}, 200
 
-class QueryByOfferLang(Resource):
+class MatchUserByLang(Resource):
     
     @classmethod
-    def get(cls):
-        _langname = request.args.getlist('_langname')[0]
-        _level = request.args.getlist('_level')
-        if _level:
-            _level = _level[0]
+    def post(cls):
+        payload = request.get_json()
         
-        users = User.find_by_offer_lan(_langname, _level)
+        '''
+            { 
+                offer_langs:[
+                {
+                    lang_name: "Chinese",
+                    level: 3
+                },
+                {
+                    lang_name: "Swedish",
+                    level: 6
+                },
+                {
+                    lang_name: "Danish",
+                    level: 6
+                }
+                ],
+                acpt_langs: [
+                    {
+                        lang_name: "Chinese",
+                        level: 3
+                    },
+                    {
+                        lang_name: "Swedish",
+                        level: 3
+                    },
+                    {
+                        lang_name: "Arabic",
+                        level: 3
+                    }
+                ]
+            }
+            offer       accept 
+             A  lv3      B lv4     -> 找到 accept lv.3 A 且 offer lv.4 B 
+             C  lv3      E lv4   
+             D  lv3      F lv4        
 
-        return user_lang_schema.dump(users), 200
+        '''
+        
+        users = User.match_by_langs(payload)
+
+        return 1, 200
+        # return user_lang_schema.dump(users), 200
 
 class EditProfile(Resource): 
     @classmethod
@@ -304,15 +340,6 @@ class GetAllLang(Resource):
     def get(cls):
         return allLang, 200
 
-class QueryByAcceptLang(Resource):
-    
-    @classmethod
-    def get(cls):
-        
-        users = User.find_by_acpt_lan(request.args.getlist('_langname')[0])
-
-        return user_lang_schema.dump(users), 200
-
 class GetMyProfile(Resource):
     
     @classmethod
@@ -331,11 +358,15 @@ class GetMyLangs(Resource):
     @classmethod
     @jwt_required()
     def get(cls):
-        
-        user = User.query.filter_by(id=get_jwt_identity()).first()
-        _user = my_lang_schema.dump(user)
-        
-        return {"langs":_user, "errorCode": 0}, 200
+        try:
+            user = User.query.filter_by(id=get_jwt_identity()).first()
+            
+            _user = my_lang_schema.dump(user)
+
+            return {"langs":_user, "errorCode": 0}, 200
+        except Exception as e:
+            print(e)    
+
 
 class CheckUserName(Resource):
     @classmethod

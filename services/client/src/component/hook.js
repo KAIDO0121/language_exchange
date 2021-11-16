@@ -110,14 +110,14 @@ export const useSelLang = () => {
 			.catch(error => {
 				console.error(error);
 			});
-
+			/*
 		getMyLangs()
 			.then(res => {
 				setSelLang(res.data.langs);
 			})
 			.catch(error => {
 				console.error(error);
-			});
+			}); */
 	}, []);
 
 	return { allLang, selectLevelHandler, selectLangHandler, selLang };

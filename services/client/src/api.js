@@ -48,3 +48,7 @@ export const getMyProfile = () =>
 export const getMyLangs = () => userRequest.get("/api/getMyLangs");
 export const editProfile = data =>
 	userRequest.put("/api/editProfile", data);
+
+export const matchUserByLang = queryLangs =>
+  userRequest.post("/api/matchUserByLang", queryLangs);
+  
