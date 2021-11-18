@@ -272,47 +272,9 @@ class MatchUserByLang(Resource):
     def post(cls):
         payload = request.get_json()
         
-        '''
-            { 
-                offer_langs:[
-                {
-                    lang_name: "Chinese",
-                    level: 3
-                },
-                {
-                    lang_name: "Swedish",
-                    level: 6
-                },
-                {
-                    lang_name: "Danish",
-                    level: 6
-                }
-                ],
-                acpt_langs: [
-                    {
-                        lang_name: "Chinese",
-                        level: 3
-                    },
-                    {
-                        lang_name: "Swedish",
-                        level: 3
-                    },
-                    {
-                        lang_name: "Arabic",
-                        level: 3
-                    }
-                ]
-            }
-            offer       accept 
-             A  lv3      B lv4     -> 找到 accept lv.3 A 且 offer lv.4 B 
-             C  lv3      E lv4   
-             D  lv3      F lv4        
-
-        '''
-        
         users = User.match_by_langs(payload)
 
-        return 1, 200
+        return users, 200
         # return user_lang_schema.dump(users), 200
 
 class EditProfile(Resource): 

@@ -2,6 +2,7 @@ from project.models import db
 from project.models.lang import OfferLanguage
 from flask_login import UserMixin
 from project.models.lang import AcceptLanguage
+from sqlalchemy import union, or_, and_
 
 class User(db.Model, UserMixin):
     __tablename__ = 'user'
@@ -37,17 +38,28 @@ class User(db.Model, UserMixin):
     @classmethod
     def match_by_langs(cls,  payload: list) -> "User":
         try:
-           
+            _users = []
             for offer_lang in payload["user_offer_lang"]:
-                _users = cls.query.join(AcceptLanguage).join(OfferLanguage).filter(and_(
-                    AcceptLanguage.lang_name==offer_lang.lang_name, 
-                    AcceptLanguage.level==offer_lang.level
-                ))
-                for acpt_lang in payload["user_acpt_lang"]:
-                    _users
-            # _users = cls.query.join(AcceptLanguage).join(OfferLanguage).filter(AcceptLanguage.lang_name==_langname)
-            print(payload)
-            return 1
+                acpt_1 = payload["user_acpt_lang"][0]
+                acpt_2 = None
+                acpt_3 = None
+                if len(payload["user_acpt_lang"]) > 1 :
+                    acpt_2 = payload["user_acpt_lang"][1]
+                if len(payload["user_acpt_lang"]) > 2 :
+                    acpt_3 = payload["user_acpt_lang"][2]
+
+                _users.append(cls.query.join(cls.user_offer_lang).join(cls.user_acpt_lang).filter(and_(
+                    cls.user_acpt_lang.lang_name==offer_lang.lang_name, 
+                    cls.user_acpt_lang.level==offer_lang.level
+                )).filter(or_(and_(cls.user_offer_lang.lang_name == acpt_1.lang_name, cls.user_offer_lang.level == acpt_1.level ), 
+                    and_(cls.user_offer_lang.lang_name == acpt_2.lang_name, cls.user_offer_lang.level == acpt_2.level ), 
+                    and_(cls.user_offer_lang.lang_name == acpt_3.lang_name, cls.user_offer_lang.level == acpt_3.level ) 
+                )))
+               
+            all = union(*_users)
+            
+            print(all)
+            return all
         except Exception as e:
             print(e)    
 
