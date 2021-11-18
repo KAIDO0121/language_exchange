@@ -1,4 +1,4 @@
-CREATE TABLE _user (
+CREATE TABLE users (
   id INT GENERATED ALWAYS AS IDENTITY,
   email varchar(200) NOT NULL,
   username varchar(50) NOT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE accept_lang (
   user_id INT NOT NULL,
   PRIMARY KEY (id),
   constraint fk_user_id
-      foreign key (user_id) REFERENCES _user(id)
+      foreign key (user_id) REFERENCES users(id)
 
 );
 
@@ -31,11 +31,11 @@ CREATE TABLE offer_lang (
   user_id INT NOT NULL,
   PRIMARY KEY (id),
   constraint fk_user_id
-      foreign key (user_id) REFERENCES _user(id)
+      foreign key (user_id) REFERENCES users(id)
 
 );
 
-INSERT INTO _user( email, username, password, user_offer_lang, user_acpt_lang, bio)
+INSERT INTO users( email, username, password, user_offer_lang, user_acpt_lang, bio)
 
 VALUES( 'sean004@xxxxxxx.com', 'sean004', 'pw', '[
         {

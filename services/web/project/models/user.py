@@ -5,7 +5,7 @@ from project.models.lang import AcceptLanguage
 from sqlalchemy import union, or_, and_
 
 class User(db.Model, UserMixin):
-    __tablename__ = 'user'
+    __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     user_offer_lang = db.relationship('OfferLanguage', backref='User')
     user_acpt_lang = db.relationship('AcceptLanguage', backref='User')
@@ -47,18 +47,18 @@ class User(db.Model, UserMixin):
                     acpt_2 = payload["user_acpt_lang"][1]
                 if len(payload["user_acpt_lang"]) > 2 :
                     acpt_3 = payload["user_acpt_lang"][2]
-
-                _users.append(cls.query.join(cls.user_offer_lang).join(cls.user_acpt_lang).filter(and_(
-                    cls.user_acpt_lang.lang_name==offer_lang.lang_name, 
-                    cls.user_acpt_lang.level==offer_lang.level
-                )).filter(or_(and_(cls.user_offer_lang.lang_name == acpt_1.lang_name, cls.user_offer_lang.level == acpt_1.level ), 
-                    and_(cls.user_offer_lang.lang_name == acpt_2.lang_name, cls.user_offer_lang.level == acpt_2.level ), 
-                    and_(cls.user_offer_lang.lang_name == acpt_3.lang_name, cls.user_offer_lang.level == acpt_3.level ) 
-                )))
+                q = cls.query.join(AcceptLanguage).join(OfferLanguage).filter(and_(
+                    AcceptLanguage.lang_name==offer_lang['lang_name'], 
+                    AcceptLanguage.level==offer_lang['level']
+                )).filter(or_(and_(OfferLanguage.lang_name == acpt_1['lang_name'], OfferLanguage.level == acpt_1['level'] ), 
+                    and_(OfferLanguage.lang_name == acpt_2['lang_name'], OfferLanguage.level == acpt_2['level'] ), 
+                    and_(OfferLanguage.lang_name == acpt_3['lang_name'], OfferLanguage.level == acpt_3['level'] ) 
+                )).all()
+                _users.append(q)
                
             all = union(*_users)
+            # _users = cls.query.join(AcceptLanguage).join(OfferLanguage).filter(AcceptLanguage.lang_name==_langname)
             
-            print(all)
             return all
         except Exception as e:
             print(e)    
