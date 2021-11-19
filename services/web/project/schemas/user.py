@@ -7,7 +7,6 @@ import re
 
 
 class UserSchema(ma.SQLAlchemyAutoSchema):
-   
     class Meta:
         load_only = ('password','pic', )
         exclude = ('id',)
@@ -32,10 +31,7 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
         is_valid = re.match("^(?=.*[a-zA-Z0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,15}$", str(value))
         if not is_valid:
             raise ValidationError("Password must be 6-15 characters, contain both alphanumeric and a special characters (!@#$%^&*).")
-         
 
-    user_acpt_lang = fields.Nested(AcceptLanguageSchema, many=True, required=True)
-    user_offer_lang = fields.Nested(OfferLanguageSchema, many=True, required=True)
 
 class UserAndLangSchema(ma.SQLAlchemyAutoSchema):
     class Meta:

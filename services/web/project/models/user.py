@@ -49,17 +49,18 @@ class User(db.Model, UserMixin):
                     acpt_3 = payload["user_acpt_lang"][2]
                 q = cls.query.join(AcceptLanguage).join(OfferLanguage).filter(and_(
                     AcceptLanguage.lang_name==offer_lang['lang_name'], 
-                    AcceptLanguage.level==offer_lang['level']
-                )).filter(or_(and_(OfferLanguage.lang_name == acpt_1['lang_name'], OfferLanguage.level == acpt_1['level'] ), 
-                    and_(OfferLanguage.lang_name == acpt_2['lang_name'], OfferLanguage.level == acpt_2['level'] ), 
-                    and_(OfferLanguage.lang_name == acpt_3['lang_name'], OfferLanguage.level == acpt_3['level'] ) 
+                    AcceptLanguage.level>=offer_lang['level']
+                )).filter(or_(and_(OfferLanguage.lang_name >= acpt_1['lang_name'], OfferLanguage.level >= acpt_1['level'] ), 
+                    and_(OfferLanguage.lang_name >= acpt_2['lang_name'], OfferLanguage.level >= acpt_2['level'] ), 
+                    and_(OfferLanguage.lang_name >= acpt_3['lang_name'], OfferLanguage.level >= acpt_3['level'] ) 
                 )).all()
+                print(q)
                 _users.append(q)
                
-            all = union(*_users)
+            
             # _users = cls.query.join(AcceptLanguage).join(OfferLanguage).filter(AcceptLanguage.lang_name==_langname)
             
-            return all
+            return _users
         except Exception as e:
             print(e)    
 
