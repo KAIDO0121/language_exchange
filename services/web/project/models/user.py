@@ -2,7 +2,7 @@ from project.models import db
 from project.models.lang import OfferLanguage
 from flask_login import UserMixin
 from project.models.lang import AcceptLanguage
-from sqlalchemy import union, or_, and_
+from sqlalchemy import or_, and_
 
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
@@ -15,6 +15,11 @@ class User(db.Model, UserMixin):
     bio = db.Column(db.Text)
     pic = db.Column(db.LargeBinary, nullable=True)
 
+
+    def as_dict(self):
+       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+
     @classmethod
     def find_by_username(cls, username: str) -> "User":
         return cls.query.filter_by(username=username).first()
@@ -24,43 +29,57 @@ class User(db.Model, UserMixin):
         return cls.query.filter_by(email=email).first()
 
     @classmethod
-    def find_by_offer_lan(cls, _langname: str, _level: int) -> "User":
+    def get_user_langs(cls, user: dict) -> "User":
      
         try:
-            _users = cls.query.join(OfferLanguage).filter(OfferLanguage.lang_name==_langname)
-            if _level:
-                _users = _users.filter(OfferLanguage.level>=_level)
-           
-            return _users.all()
+            user_offer_langs = OfferLanguage.query.filter(OfferLanguage.user_id==user["id"]).all()
+            user_acpt_langs = AcceptLanguage.query.filter(AcceptLanguage.user_id==user["id"]).all()
+
+            return { "user_offer_langs": [lang.as_dict() for lang in user_offer_langs], 
+            "user_acpt_langs": [lang.as_dict() for lang in user_acpt_langs] }
+
         except Exception as e:
             print(e)
-    
+
     @classmethod
     def match_by_langs(cls,  payload: list) -> "User":
         try:
-            _users = []
+
+            acpt_1 = payload["user_acpt_lang"][0]
+            acpt_2 = None
+            acpt_3 = None
+            users = set()
+            if len(payload["user_acpt_lang"]) > 1 :
+                acpt_2 = payload["user_acpt_lang"][1]
+            if len(payload["user_acpt_lang"]) > 2 :
+                acpt_3 = payload["user_acpt_lang"][2]
+
             for offer_lang in payload["user_offer_lang"]:
-                acpt_1 = payload["user_acpt_lang"][0]
-                acpt_2 = None
-                acpt_3 = None
-                if len(payload["user_acpt_lang"]) > 1 :
-                    acpt_2 = payload["user_acpt_lang"][1]
-                if len(payload["user_acpt_lang"]) > 2 :
-                    acpt_3 = payload["user_acpt_lang"][2]
-                q = cls.query.join(AcceptLanguage).join(OfferLanguage).filter(and_(
-                    AcceptLanguage.lang_name==offer_lang['lang_name'], 
-                    AcceptLanguage.level>=offer_lang['level']
-                )).filter(or_(and_(OfferLanguage.lang_name >= acpt_1['lang_name'], OfferLanguage.level >= acpt_1['level'] ), 
-                    and_(OfferLanguage.lang_name >= acpt_2['lang_name'], OfferLanguage.level >= acpt_2['level'] ), 
-                    and_(OfferLanguage.lang_name >= acpt_3['lang_name'], OfferLanguage.level >= acpt_3['level'] ) 
-                )).all()
-                print(q)
-                _users.append(q)
-               
+                
+                    res = cls.query.join(AcceptLanguage).join(OfferLanguage).filter(and_(
+                        AcceptLanguage.lang_name==offer_lang['lang_name'], 
+                        AcceptLanguage.level<=offer_lang['level']
+                    )).filter(or_(and_(OfferLanguage.lang_name >= acpt_1['lang_name'], OfferLanguage.level >= acpt_1['level'] ), 
+                        and_(OfferLanguage.lang_name >= acpt_2['lang_name'], OfferLanguage.level >= acpt_2['level'] ), 
+                        and_(OfferLanguage.lang_name >= acpt_3['lang_name'], OfferLanguage.level >= acpt_3['level'] ) 
+                    )).distinct().all()
+
+                    if res:
+                        users.update(res)
+                    
+            json_users = []
+
+            for obj in list(users):
+                json_users.append(obj.as_dict())
+
+            langs = list(map(User.get_user_langs, json_users))
+
+            for la in langs:
+                print(la)
             
-            # _users = cls.query.join(AcceptLanguage).join(OfferLanguage).filter(AcceptLanguage.lang_name==_langname)
+            return 
+
             
-            return _users
         except Exception as e:
             print(e)    
 

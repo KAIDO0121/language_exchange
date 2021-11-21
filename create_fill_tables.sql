@@ -35,21 +35,23 @@ CREATE TABLE offer_lang (
 
 INSERT INTO users( email, username, password, bio)
 
-VALUES( 'sean004@xxxxxxx.com', 'sean004', 'pw', 'grttjtjt' ),
-    ( 'sean002@xxxxxxx.com', 'sean002', 'pw', 'grttjtjt' ),
-('sean003@xxxxxxx.com', 'sean003', 'pw', 'grttjtjt' );
+VALUES( 'sean004@xxxxxxx.com', 'sean00000004', 'pwgrdrgre!!', 'grttjtjt' ),
+    ( 'sean002@xxxxxxx.com', 'sean00000002', 'pwgrdrgre!!', 'grttjtjt' ),
+('sean003@xxxxxxx.com', 'sean0000003', 'pwgrdrgre!!', 'grttjtjt' );
 
 
 INSERT INTO accept_lang( user_id, lang_name, level)
-VALUES( 1, "Chinese", 1 ),( 1, "English", 1 ),( 1, "Japanese", 1 ),
-( 2, "German", 1 ),( 2, "English", 1 ),( 2, "French", 1 ),
-( 3, "Arabic", 1 ),( 3, "Chinese", 1 ),( 3, "Japanese", 1 );
+VALUES( 1, 'Chinese', 1 ),( 1, 'English', 1 ),( 1, 'Japanese', 1 ),
+( 2, 'German', 1 ),( 2, 'Japanese', 1 ),( 2, 'French', 1 ),
+( 3, 'Arabic', 1 ),( 3, 'Chinese', 1 ),( 3, 'Japanese', 1 );
 
 INSERT INTO offer_lang( user_id, lang_name, level)
-VALUES( 1, "German", 1 ),( 1, "Arabic", 1 ),( 1, "Japanese", 1 ),
-( 2, "Chinese", 6 ),( 2, "English", 6 ),( 2, "French", 6 ),
-( 3, "English", 5 ),( 3, "Chinese", 4 ),( 3, "German", 6 );
+VALUES( 1, 'German', 1 ),( 1, 'Arabic', 1 ),( 1, 'Japanese', 1 ),
+( 2, 'Chinese', 6 ),( 2, 'English', 6 ),( 2, 'Spainish', 6 ),
+( 3, 'English', 5 ),( 3, 'French', 4 ),( 3, 'German', 6 );
 
+
+SELECT * FROM accept_lang
 
 
 

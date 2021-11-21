@@ -1,8 +1,9 @@
 from flask_restful import Resource
 import re
+from project.models import db
 from flask import request
 from project.models.user import User
-from project.schemas.user import UserSchema, UserAndLangSchema
+from project.schemas.user import UserSchema
 from project.schemas.lang import AcceptLanguageSchema, OfferLanguageSchema
 import base64
 from project.blacklist import BLACKLIST
@@ -210,9 +211,8 @@ allLang = [{ 'code' : 'ab', 'name' : 'Abkhazian' },
 
 user_schema = UserSchema()
 
-my_lang_schema = UserSchema(only=['user_acpt_lang','user_offer_lang'])
+# my_lang_schema = UserSchema(only=['user_acpt_lang','user_offer_lang'])
 
-user_lang_schema = UserAndLangSchema(many=True)
 
 offer_schema = OfferLanguageSchema(many=True)
 
@@ -258,13 +258,25 @@ class UserRegister(Resource):
     def post(cls):
         user_json = request.get_json()
         
-        user = user_schema.load(user_json)
+        user = user_schema.load(user_json, session=db.session)
+
+        offer_langs = offer_schema.load(user_json["user_offer_lang"])
+
+        accept_langs = acpt_schema.load(user_json["user_acpt_lang"])
 
         user.password = generate_password_hash(user.password)
 
         b = user.save_to_db()
-       
-        return {"user":user_schema.dump(b), "errorCode":0}, 200
+
+        for lang in offer_langs:
+            lang.save_to_db(b.id)
+
+
+        for lang in accept_langs:
+            lang.save_to_db(b.id)
+
+             
+        return { "user" : user_lang_schema.dump(b), "errorCode": 0 }, 200
 
 class MatchUserByLang(Resource):
     
@@ -274,8 +286,10 @@ class MatchUserByLang(Resource):
         
         users = User.match_by_langs(payload)
 
+
+
         return users, 200
-        # return user_lang_schema.dump(users), 200
+
 
 class EditProfile(Resource): 
     @classmethod
@@ -284,14 +298,14 @@ class EditProfile(Resource):
      
         user = User.query.filter_by(id=get_jwt_identity()).first()
         user_json = request.get_json()
-        print(user.pic)
+      
         if user:
             user.bio = user_json["bio"]
             user.user_offer_lang = offer_schema.load(user_json["user_offer_lang"]) 
             user.user_acpt_lang = acpt_schema.load(user_json["user_acpt_lang"]) 
       
             user.save_to_db()
-            print(user.pic)
+            
             return {"updatedProfile":user_schema.dump(user), "message":"", "errorCode": 0}, 200
 
         else:
@@ -323,9 +337,9 @@ class GetMyLangs(Resource):
         try:
             user = User.query.filter_by(id=get_jwt_identity()).first()
             
-            _user = my_lang_schema.dump(user)
+            # _user = my_lang_schema.dump(user)
 
-            return {"langs":_user, "errorCode": 0}, 200
+            return {"langs":user, "errorCode": 0}, 200
         except Exception as e:
             print(e)    
 

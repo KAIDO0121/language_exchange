@@ -2,7 +2,7 @@ from project.ma import ma
 from project.models.user import User
 from project.schemas.lang import AcceptLanguageSchema, OfferLanguageSchema
 from project.schemas.image import ImageSchema
-from marshmallow import fields, validates, ValidationError
+from marshmallow import fields, validates, ValidationError, EXCLUDE, Schema
 import re
 
 
@@ -12,6 +12,7 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
         exclude = ('id',)
         model = User
         load_instance = True
+        include_relationships = True
         
     @validates("username")
     def validate_username(self, value):
@@ -32,11 +33,29 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
         if not is_valid:
             raise ValidationError("Password must be 6-15 characters, contain both alphanumeric and a special characters (!@#$%^&*).")
 
+    '''
+class UserAndLangSchema(Schema):
 
-class UserAndLangSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
-        fields = ('username', 'pic', 'user_acpt_lang', 'user_offer_lang')
-    user_acpt_lang= ma.Nested(AcceptLanguageSchema, many=True)
-    user_offer_lang= ma.Nested(OfferLanguageSchema, many=True)
+        exclude = ('id', 'password',)
+        load_instance = True
+        include_relationships = True
+
+
+        name = fields.Str()
+        email = fields.Email()
+        created_at = fields.DateTime()
+  
+
+    email = fields.Email()
+    username = fields.Str()
+    password = fields.Str()
+    bio = fields.Str()
+    pic = fields.Str()
+    id = fields.Int()
+
+    unknown = EXCLUDE
+    '''
+
     
