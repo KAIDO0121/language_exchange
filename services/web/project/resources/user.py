@@ -2,7 +2,7 @@ from flask_restful import Resource
 import re
 from project.models import db
 from flask import request
-from project.models.user import User
+from project.models.user import User, OfferLanguage
 from project.schemas.user import UserSchema
 from project.schemas.lang import AcceptLanguageSchema, OfferLanguageSchema
 import base64
@@ -15,6 +15,7 @@ from flask_jwt_extended import (
     get_jwt_identity,
     get_jwt
 )
+from services.web.project.models.lang import AcceptLanguage
 # from blacklist import BLACKLIST
 
 USER_ALREADY_EXISTS = "A user with that username already exists."
@@ -213,7 +214,6 @@ user_schema = UserSchema()
 
 # my_lang_schema = UserSchema(only=['user_acpt_lang','user_offer_lang'])
 
-
 offer_schema = OfferLanguageSchema(many=True)
 
 acpt_schema = AcceptLanguageSchema(many=True)
@@ -276,7 +276,7 @@ class UserRegister(Resource):
             lang.save_to_db(b.id)
 
              
-        return { "user" : user_lang_schema.dump(b), "errorCode": 0 }, 200
+        return { "user" : user_schema.dump(b), "errorCode": 0 }, 200
 
 class MatchUserByLang(Resource):
     
@@ -286,27 +286,31 @@ class MatchUserByLang(Resource):
         
         users = User.match_by_langs(payload)
 
-
-
-        return users, 200
+        return { "users" : users, "errorCode": 0 }, 200
 
 
 class EditProfile(Resource): 
     @classmethod
     @jwt_required()
     def put(cls):
-     
-        user = User.query.filter_by(id=get_jwt_identity()).first()
+        
+        user = User.find_by_user_id(get_jwt_identity())
+        
         user_json = request.get_json()
-      
+
         if user:
             user.bio = user_json["bio"]
-            user.user_offer_lang = offer_schema.load(user_json["user_offer_lang"]) 
-            user.user_acpt_lang = acpt_schema.load(user_json["user_acpt_lang"]) 
+            
+            for lang in user_json["user_offer_lang"]:
+                OfferLanguage.edit_entry(lang)
+
+            for lang in user_json["user_acpt_lang"]:
+                AcceptLanguage.edit_entry(lang)
       
             user.save_to_db()
+
             
-            return {"updatedProfile":user_schema.dump(user), "message":"", "errorCode": 0}, 200
+            return { "message":"OK", "errorCode": 0}, 200
 
         else:
             return {"message": "Invalid credential", "errorCode": 1}, 200
@@ -322,12 +326,12 @@ class GetMyProfile(Resource):
     @jwt_required()
     def get(cls):
         
-        user = User.query.filter_by(id=get_jwt_identity()).first()
+        user = User.find_by_user_id(get_jwt_identity())
 
         pic = base64.b64encode(user.pic).decode('ascii') 
         _user = user_schema.dump(user)
         _user["pic"] = "data:image/png;base64, " + pic
-        return {"userprofile":_user, "errorCode": 0}, 200
+        return { "userprofile":_user, "errorCode": 0 }, 200
 
 class GetMyLangs(Resource):
     
@@ -335,11 +339,9 @@ class GetMyLangs(Resource):
     @jwt_required()
     def get(cls):
         try:
-            user = User.query.filter_by(id=get_jwt_identity()).first()
-            
-            # _user = my_lang_schema.dump(user)
+            langs = User.get_user_langs(get_jwt_identity())
 
-            return {"langs":user, "errorCode": 0}, 200
+            return {"langs":langs, "errorCode": 0}, 200
         except Exception as e:
             print(e)    
 

@@ -19,27 +19,31 @@ class User(db.Model, UserMixin):
     def as_dict(self):
        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
+    @classmethod
+    def find_by_email(cls, email: str) -> "User":
+        return cls.query.filter_by(email=email).first()
 
     @classmethod
     def find_by_username(cls, username: str) -> "User":
         return cls.query.filter_by(username=username).first()
     
     @classmethod
-    def find_by_email(cls, email: str) -> "User":
-        return cls.query.filter_by(email=email).first()
+    def find_by_user_id(cls, _id: int) -> "User":
+        return cls.query.filter_by(id=_id).first()
 
     @classmethod
-    def get_user_langs(cls, user: dict) -> "User":
-     
+    def get_user_langs(cls, user: dict, **kwargs) -> "User":
+        _id = user.get("id") or kwargs.get("id")
         try:
-            user_offer_langs = OfferLanguage.query.filter(OfferLanguage.user_id==user["id"]).all()
-            user_acpt_langs = AcceptLanguage.query.filter(AcceptLanguage.user_id==user["id"]).all()
+            user_offer_langs = OfferLanguage.query.filter(OfferLanguage.user_id==_id).all()
+            user_acpt_langs = AcceptLanguage.query.filter(AcceptLanguage.user_id==_id).all()
 
             return { "user_offer_langs": [lang.as_dict() for lang in user_offer_langs], 
             "user_acpt_langs": [lang.as_dict() for lang in user_acpt_langs] }
 
         except Exception as e:
             print(e)
+            raise Exception("There is an error: {}".format(e))
 
     @classmethod
     def match_by_langs(cls,  payload: list) -> "User":
@@ -72,16 +76,25 @@ class User(db.Model, UserMixin):
             for obj in list(users):
                 json_users.append(obj.as_dict())
 
-            langs = list(map(User.get_user_langs, json_users))
 
-            for la in langs:
-                print(la)
-            
-            return 
+            langs = [User.get_user_langs(user) for user in json_users ]
+
+
+            def populate_user_lang(index, user) :
+                user["user_offer_lang"] = langs[index]["user_offer_langs"] 
+                user["user_acpt_langs"] = langs[index]["user_acpt_langs"] 
+                return user
+
+
+            users_with_langs = [populate_user_lang(ind, user) for ind, user in enumerate(json_users) ]
+
+
+            return users_with_langs
 
             
         except Exception as e:
             print(e)    
+            raise Exception("There is an error: {}".format(e))
 
     def save_to_db(self) -> None:
         db.session.add(self)

@@ -11,6 +11,10 @@ class AcceptLanguage(db.Model):
     def as_dict(self):
        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
     
+    def edit_entry(self, updated):
+        self.level = updated["level"]
+        self.lang_name = updated["lang_name"]
+        db.session.commit()
 
     def save_to_db(self, user_id):
         self.user_id = user_id
@@ -27,10 +31,14 @@ class OfferLanguage(db.Model):
 
     def as_dict(self):
        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
-
     
     def save_to_db(self, user_id):
         self.user_id = user_id
         db.session.add(self)
         db.session.commit()
         return self
+    
+    def edit_entry(self, updated):
+        self.level = updated["level"]
+        self.lang_name = updated["lang_name"]
+        db.session.commit()
