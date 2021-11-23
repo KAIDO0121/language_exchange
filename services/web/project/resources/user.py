@@ -2,8 +2,9 @@ from flask_restful import Resource
 import re
 from project.models import db
 from flask import request
-from project.models.user import User, OfferLanguage
+from project.models.user import User
 from project.schemas.user import UserSchema
+from project.models.lang import AcceptLanguage, OfferLanguage
 from project.schemas.lang import AcceptLanguageSchema, OfferLanguageSchema
 import base64
 from project.blacklist import BLACKLIST
@@ -15,7 +16,7 @@ from flask_jwt_extended import (
     get_jwt_identity,
     get_jwt
 )
-from services.web.project.models.lang import AcceptLanguage
+
 # from blacklist import BLACKLIST
 
 USER_ALREADY_EXISTS = "A user with that username already exists."
@@ -268,14 +269,10 @@ class UserRegister(Resource):
 
         b = user.save_to_db()
 
-        for lang in offer_langs:
-            lang.save_to_db(b.id)
+        OfferLanguage.save_to_db(offer_langs)
 
-
-        for lang in accept_langs:
-            lang.save_to_db(b.id)
-
-             
+        AcceptLanguage.save_to_db(accept_langs)
+              
         return { "user" : user_schema.dump(b), "errorCode": 0 }, 200
 
 class MatchUserByLang(Resource):
@@ -339,7 +336,7 @@ class GetMyLangs(Resource):
     @jwt_required()
     def get(cls):
         try:
-            langs = User.get_user_langs(get_jwt_identity())
+            langs = User.get_user_langs(id=get_jwt_identity())
 
             return {"langs":langs, "errorCode": 0}, 200
         except Exception as e:

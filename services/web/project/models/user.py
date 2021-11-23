@@ -32,8 +32,10 @@ class User(db.Model, UserMixin):
         return cls.query.filter_by(id=_id).first()
 
     @classmethod
-    def get_user_langs(cls, user: dict, **kwargs) -> "User":
-        _id = user.get("id") or kwargs.get("id")
+    def get_user_langs(self, **kwargs) -> "User":
+        _id = kwargs.get("id")
+        if kwargs.get("user"):
+            _id = kwargs.get("user")["id"]
         try:
             user_offer_langs = OfferLanguage.query.filter(OfferLanguage.user_id==_id).all()
             user_acpt_langs = AcceptLanguage.query.filter(AcceptLanguage.user_id==_id).all()
