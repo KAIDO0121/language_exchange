@@ -1,4 +1,4 @@
-/*
+
 CREATE TABLE users (
   id INT GENERATED ALWAYS AS IDENTITY,
   email varchar(200) NOT NULL,
@@ -55,5 +55,5 @@ VALUES( 1, 'German', 1 ),( 1, 'Arabic', 1 ),( 1, 'Japanese', 1 ),
 SELECT * FROM accept_lang
 
 
-*/
+
 

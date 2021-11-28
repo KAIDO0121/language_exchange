@@ -41,7 +41,11 @@ export const uploadPic = (image) => userRequest.put("/api/uploadPic", image);
 export const tokenRefresh = () => userRequest.get("/api/tokenRefresh");
 export const getMyProfile = () => userRequest.get("/api/getMyProfile");
 export const getMyLangs = () => userRequest.get("/api/getMyLangs");
+export const getUserLangs = (id) =>
+  userRequest.get("/api/getUserLangs", { params: { id } });
 export const editProfile = (data) => userRequest.put("/api/editProfile", data);
+export const getUserProfile = (id) =>
+  userRequest.get("/api/getUserProfile", { params: { id } });
 
 export const matchUserByLang = (queryLangs) =>
   userRequest.post("/api/matchUserByLang", queryLangs);

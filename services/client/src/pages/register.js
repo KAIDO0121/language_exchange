@@ -6,171 +6,160 @@ import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
 import { useNavigate } from "react-router-dom";
-import {
-	registerUser,
-	checkEmail,
-	checkUserName,
-	userLogin
-} from "../api";
+import { registerUser, checkEmail, checkUserName, userLogin } from "../api";
 import { useSelLang } from "../component/hook";
 import LangGroup from "../component/langGroup";
 
 const Register = () => {
-	const navigate = useNavigate();
+  const navigate = useNavigate();
 
-	const { allLang, selectLevelHandler, selectLangHandler, selLang } = useSelLang();
-	const { setPopbox } = useContext(PopBoxCxt);
-	const [profile, setProfile] = useState({
-		password: "",
-		username: "",
-		email: "",
-		bio: ""
-	});
+  const { allLang, selectLevelHandler, selectLangHandler, selLang } =
+    useSelLang();
+  const { setPopbox } = useContext(PopBoxCxt);
+  const [profile, setProfile] = useState({
+    password: "",
+    username: "",
+    email: "",
+    bio: "",
+  });
 
-	const [status, setStatus] = useState({
-		username: {
-			status: null,
-			msg: ""
-		},
-		password: {
-			status: null,
-			msg: ""
-		},
-		email: {
-			status: null,
-			msg: ""
-		}
-	});
+  const [status, setStatus] = useState({
+    username: {
+      status: null,
+      msg: "",
+    },
+    password: {
+      status: null,
+      msg: "",
+    },
+    email: {
+      status: null,
+      msg: "",
+    },
+  });
 
-	const validateCol = async ({ type, value }) => {
-		if (type === "email") {
-			try {
-				const response = await checkEmail(value);
-				if (response.data.errorCode !== 0) {
-					setStatus(prev => ({
-						...prev,
-						email: {
-							status: false,
-							msg: response.data.message
-						}
-					}));
-				} else {
-					setStatus(prev => ({
-						...prev,
-						email: {
-							status: true,
-							msg: response.data.message
-						}
-					}));
-					return true;
-				}
-			} catch (error) {
-				console.error(error);
-				setPopbox({
-					isShow: true,
-					content: "Server error"
-				});
-			}
-		} else if (type === "username") {
-			try {
-				const response = await checkUserName(value);
-				if (response.data.errorCode !== 0) {
-					setStatus(prev => ({
-						...prev,
-						username: {
-							status: false,
-							msg: response.data.message
-						}
-					}));
-				} else {
-					setStatus(prev => ({
-						...prev,
-						username: {
-							status: true,
-							msg: response.data.message
-						}
-					}));
-					return true;
-				}
-			} catch (error) {
-				console.error(error);
-				setPopbox({
-					isShow: true,
-					content: "Server error"
-				});
-			}
-		} else {
-			const passwordRegx =
-				/^(?=.*[a-zA-Z0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,15}$/;
-			if (!passwordRegx.test(value)) {
-				setStatus(prev => ({
-					...prev,
-					password: {
-						status: false,
-						msg: "Password must be 6-15 characters, contain both alphanumeric and a special characters (!@#$%^&*)."
-					}
-				}));
-			} else {
-				setStatus(prev => ({
-					...prev,
-					password: {
-						status: true,
-						msg: "Password is available."
-					}
-				}));
-				return true;
-			}
-		}
-	};
+  const validateCol = async ({ type, value }) => {
+    if (type === "email") {
+      try {
+        const response = await checkEmail(value);
+        if (response.data.errorCode !== 0) {
+          setStatus((prev) => ({
+            ...prev,
+            email: {
+              status: false,
+              msg: response.data.message,
+            },
+          }));
+        } else {
+          setStatus((prev) => ({
+            ...prev,
+            email: {
+              status: true,
+              msg: response.data.message,
+            },
+          }));
+          return true;
+        }
+      } catch (error) {
+        console.error(error);
+        setPopbox({
+          isShow: true,
+          content: "Server error",
+        });
+      }
+    } else if (type === "username") {
+      try {
+        const response = await checkUserName(value);
+        if (response.data.errorCode !== 0) {
+          setStatus((prev) => ({
+            ...prev,
+            username: {
+              status: false,
+              msg: response.data.message,
+            },
+          }));
+        } else {
+          setStatus((prev) => ({
+            ...prev,
+            username: {
+              status: true,
+              msg: response.data.message,
+            },
+          }));
+          return true;
+        }
+      } catch (error) {
+        console.error(error);
+        setPopbox({
+          isShow: true,
+          content: "Server error",
+        });
+      }
+    } else {
+      const passwordRegx =
+        /^(?=.*[a-zA-Z0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,15}$/;
+      if (!passwordRegx.test(value)) {
+        setStatus((prev) => ({
+          ...prev,
+          password: {
+            status: false,
+            msg: "Password must be 6-15 characters, contain both alphanumeric and a special characters (!@#$%^&*).",
+          },
+        }));
+      } else {
+        setStatus((prev) => ({
+          ...prev,
+          password: {
+            status: true,
+            msg: "Password is available.",
+          },
+        }));
+        return true;
+      }
+    }
+  };
 
-	const submit = async () => {
-		const validateAllCol = await Promise.all([
-			validateCol({ type: "email", value: profile.email }),
-			validateCol({ type: "username", value: profile.username }),
-			validateCol({ type: "password", value: profile.password })
-		]);
+  const submit = async () => {
+    const validateAllCol = await Promise.all([
+      validateCol({ type: "email", value: profile.email }),
+      validateCol({ type: "username", value: profile.username }),
+      validateCol({ type: "password", value: profile.password }),
+    ]);
 
-		if (validateAllCol.includes(undefined)) return;
-		try {
-			const updated = { ...profile, ...selLang };
-			const response = await registerUser(updated);
+    if (validateAllCol.includes(undefined)) return;
+    try {
+      const updated = { ...profile, ...selLang };
+      const response = await registerUser(updated);
 
-			if (response.data.errorCode === 0) {
-				const loginRes = await userLogin({
-					username: profile.username,
-					password: profile.password
-				});
-				if (loginRes.data.errorCode === 0) {
-					localStorage.setItem(
-						"access_token",
-						loginRes.data.access_token
-					);
-					localStorage.setItem(
-						"refresh_token",
-						loginRes.data.refresh_token
-					);
-				}
-				navigate("/uploadAvatar");
-			} else {
-				setPopbox({
-					isShow: true,
-					content: "Server error"
-				});
-			}
-		} catch (error) {
-			console.error(error);
-			setPopbox({
-				isShow: true,
-				content: "Server error"
-			});
-		}
-	};
+      if (response.data.errorCode === 0) {
+        const loginRes = await userLogin({
+          username: profile.username,
+          password: profile.password,
+        });
+        if (loginRes.data.errorCode === 0) {
+          localStorage.setItem("access_token", loginRes.data.access_token);
+          localStorage.setItem("refresh_token", loginRes.data.refresh_token);
+        }
+        navigate("/uploadAvatar");
+      } else {
+        setPopbox({
+          isShow: true,
+          content: "Server error",
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      setPopbox({
+        isShow: true,
+        content: "Server error",
+      });
+    }
+  };
 
-	return (
+  return (
     <div className="home-bg">
       <Container>
         <Card className="text-center center register">
-          <Card.Header>Register</Card.Header>
           <Card.Body>
             <Form>
               <Form.Group className="mb-3">

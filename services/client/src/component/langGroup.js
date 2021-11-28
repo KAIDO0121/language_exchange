@@ -49,7 +49,7 @@ const LangGroup = ({
     <>
       <Row className="mb-3">
         <Card.Subtitle className="text-left b-b-default mb-3">
-          Accepting Languages
+          I am accepting...
         </Card.Subtitle>
         <Form.Group as={Col}>
           <Form.Select
@@ -171,7 +171,7 @@ const LangGroup = ({
       </Row>
       <Row className="mb-3">
         <Card.Subtitle className="text-left b-b-default mb-3">
-          Offering Languages
+          I am offering...
         </Card.Subtitle>
 
         <Form.Group as={Col}>

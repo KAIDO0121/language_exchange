@@ -213,7 +213,7 @@ allLang = [{ 'code' : 'ab', 'name' : 'Abkhazian' },
 
 user_schema = UserSchema()
 
-# my_lang_schema = UserSchema(only=['user_acpt_lang','user_offer_lang'])
+# my_lang_schema = UserSchema(only=['user_acpt_langs','user_offer_langs'])
 
 offer_schema = OfferLanguageSchema(many=True)
 
@@ -261,18 +261,17 @@ class UserRegister(Resource):
         
         user = user_schema.load(user_json, session=db.session)
 
-        offer_langs = offer_schema.load(user_json["user_offer_lang"])
-
-        accept_langs = acpt_schema.load(user_json["user_acpt_lang"])
-
         user.password = generate_password_hash(user.password)
 
         b = user.save_to_db()
 
-        OfferLanguage.save_to_db(offer_langs)
+        # breaking the capsulation just for workaround 
+        db.session.add_all(user.user_offer_langs)
 
-        AcceptLanguage.save_to_db(accept_langs)
-              
+        db.session.add_all(user.user_acpt_langs)
+
+        db.session.commit()
+
         return { "user" : user_schema.dump(b), "errorCode": 0 }, 200
 
 class MatchUserByLang(Resource):
@@ -298,15 +297,14 @@ class EditProfile(Resource):
         if user:
             user.bio = user_json["bio"]
             
-            for lang in user_json["user_offer_lang"]:
+            for lang in user_json["user_offer_langs"]:
                 OfferLanguage.edit_entry(lang)
 
-            for lang in user_json["user_acpt_lang"]:
+            for lang in user_json["user_acpt_langs"]:
                 AcceptLanguage.edit_entry(lang)
       
             user.save_to_db()
 
-            
             return { "message":"OK", "errorCode": 0}, 200
 
         else:
@@ -318,7 +316,6 @@ class GetAllLang(Resource):
         return allLang, 200
 
 class GetMyProfile(Resource):
-    
     @classmethod
     @jwt_required()
     def get(cls):
@@ -330,6 +327,19 @@ class GetMyProfile(Resource):
         _user["pic"] = "data:image/png;base64, " + pic
         return { "userprofile":_user, "errorCode": 0 }, 200
 
+class GetUserProfile(Resource):
+    @classmethod
+    def get(cls):
+        id = request.args.get('id')
+        user = User.find_by_user_id(id)
+        if user.pic:
+            pic = base64.b64encode(user.pic).decode('ascii') 
+        _user = user_schema.dump(user)
+        if _user.get("pic"):
+            _user["pic"] = "data:image/png;base64, " + pic
+
+        return { "userprofile":_user, "errorCode": 0 }, 200
+
 class GetMyLangs(Resource):
     
     @classmethod
@@ -337,7 +347,17 @@ class GetMyLangs(Resource):
     def get(cls):
         try:
             langs = User.get_user_langs(id=get_jwt_identity())
+            return {"langs":langs, "errorCode": 0}, 200
+        except Exception as e:
+            print(e)    
 
+class GetUserLangs(Resource):
+    
+    @classmethod
+    def get(cls):
+        id = request.args.get('id')
+        try:
+            langs = User.get_user_langs(id=id)
             return {"langs":langs, "errorCode": 0}, 200
         except Exception as e:
             print(e)    

@@ -7,7 +7,6 @@ import Row from "react-bootstrap/Row";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
-import Image from "react-bootstrap/Image";
 import LangGroup from "../component/langGroup";
 import { useSelLang } from "../component/hook";
 import { getMyProfile, editProfile, uploadPic } from "../api";
@@ -90,13 +89,18 @@ const Dashboard = () => {
         console.error(error);
       });
   }, []);
+
   return (
     <div className="home-bg">
       <Container>
-        <CardGroup>
+        <CardGroup className="text-center center register">
           <Card
             className="p-3"
-            style={{ width: "18rem", justifyContent: "center", align }}
+            style={{
+              width: "18rem",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
           >
             <div className="image-container">
               <img src={profile.pic} className="prfile_pic" />
