@@ -95,10 +95,10 @@ const User = (props) => {
           <Row className="m-1">{data[index].username}</Row>
           <Row>
             <Col lg={6}>
-              <List_of_lang langs={data[index].user_offer_langs} type="offer" />
+              <ListOfLang langs={data[index].user_offer_langs} type="offer" />
             </Col>
             <Col lg={6}>
-              <List_of_lang langs={data[index].user_acpt_langs} type="acpt" />
+              <ListOfLang langs={data[index].user_acpt_langs} type="acpt" />
             </Col>
           </Row>
         </Col>
@@ -129,7 +129,7 @@ const TableHeader = () => (
   </ListGroup.Item>
 );
 
-const List_of_lang = ({ langs, type }) => {
+const ListOfLang = ({ langs, type }) => {
   return langs.map((lang) => (
     <>
       <Badge className={`m-1 ${type === "offer" ? "offer_lang" : "acpt_lang"}`}>

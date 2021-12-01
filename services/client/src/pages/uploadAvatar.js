@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useContext } from "react";
-import { PopBoxCxt } from "../component/contexts";
+import React, { useState, useContext } from "react";
+import { Navigate } from "react-router-dom";
+import { PopBoxCxt, LoginCxt } from "../component/contexts";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
 import { useNavigate } from "react-router-dom";
@@ -13,6 +14,7 @@ const UploadAvatar = () => {
   const navigate = useNavigate();
   const [image, setImage] = useState(null);
   const { setPopbox } = useContext(PopBoxCxt);
+  const { isLogin } = useContext(LoginCxt);
   const [status, setStatus] = useState({
     status: null,
     msg: "",
@@ -44,6 +46,10 @@ const UploadAvatar = () => {
       });
     }
   };
+
+  if (!isLogin) {
+    return <Navigate to="/" />;
+  }
 
   return (
     <div className="home-bg">

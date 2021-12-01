@@ -321,10 +321,12 @@ class GetMyProfile(Resource):
     def get(cls):
         
         user = User.find_by_user_id(get_jwt_identity())
-
-        pic = base64.b64encode(user.pic).decode('ascii') 
+        if user.pic:
+            pic = base64.b64encode(user.pic).decode('ascii') 
         _user = user_schema.dump(user)
-        _user["pic"] = "data:image/png;base64, " + pic
+        if _user.get("pic"):
+            _user["pic"] = "data:image/png;base64, " + pic
+
         return { "userprofile":_user, "errorCode": 0 }, 200
 
 class GetUserProfile(Resource):

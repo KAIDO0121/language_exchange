@@ -1,5 +1,6 @@
 import React, { useState, useContext } from "react";
-import { PopBoxCxt } from "../component/contexts";
+import { Navigate } from "react-router-dom";
+import { PopBoxCxt, LoginCxt } from "../component/contexts";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
 import Card from "react-bootstrap/Card";
@@ -9,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { registerUser, checkEmail, checkUserName, userLogin } from "../api";
 import { useSelLang } from "../component/hook";
 import LangGroup from "../component/langGroup";
+import { Row } from "react-bootstrap";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -16,6 +18,8 @@ const Register = () => {
   const { allLang, selectLevelHandler, selectLangHandler, selLang } =
     useSelLang();
   const { setPopbox } = useContext(PopBoxCxt);
+  const { isLogin, setLogin } = useContext(LoginCxt);
+
   const [profile, setProfile] = useState({
     password: "",
     username: "",
@@ -139,8 +143,9 @@ const Register = () => {
         if (loginRes.data.errorCode === 0) {
           localStorage.setItem("access_token", loginRes.data.access_token);
           localStorage.setItem("refresh_token", loginRes.data.refresh_token);
+          setLogin(true);
         }
-        navigate("/uploadAvatar");
+        navigate("/dashboard");
       } else {
         setPopbox({
           isShow: true,
@@ -156,126 +161,126 @@ const Register = () => {
     }
   };
 
-  return (
-    <div className="home-bg">
-      <Container>
-        <Card className="text-center center register">
-          <Card.Body>
-            <Form>
-              <Form.Group className="mb-3">
-                <InputGroup hasValidation>
-                  <Form.Control
-                    isValid={status.email.status === true}
-                    isInvalid={status.email.status === false}
-                    value={profile.email}
-                    onChange={(e) =>
-                      setProfile((prev) => ({
-                        ...prev,
-                        email: e.target.value,
-                      }))
-                    }
-                    onBlur={(e) =>
-                      validateCol({
-                        type: "email",
-                        value: e.target.value,
-                      })
-                    }
-                    type="email"
-                    placeholder="Enter email"
-                  />
+  if (isLogin) {
+    return <Navigate to="/" />;
+  }
 
-                  {status.email.status === false && (
-                    <Form.Control.Feedback type="invalid">
-                      {status.email.msg}
-                    </Form.Control.Feedback>
-                  )}
-                </InputGroup>
-              </Form.Group>
-              <Form.Group className="mb-3">
-                <InputGroup hasValidation>
-                  <Form.Control
-                    isValid={status.password.status === true}
-                    isInvalid={status.password.status === false}
-                    value={profile.password}
-                    onChange={(e) =>
-                      setProfile((prev) => ({
-                        ...prev,
-                        password: e.target.value,
-                      }))
-                    }
-                    onBlur={(e) =>
-                      validateCol({
-                        type: "password",
-                        value: e.target.value,
-                      })
-                    }
-                    type="password"
-                    placeholder="Password"
-                  />
-                  {status.password.status === false && (
-                    <Form.Control.Feedback type="invalid">
-                      {status.password.msg}
-                    </Form.Control.Feedback>
-                  )}
-                </InputGroup>
-              </Form.Group>
-              <Form.Group className="mb-3">
-                <InputGroup hasValidation>
-                  <Form.Control
-                    isValid={status.username.status === true}
-                    isInvalid={status.username.status === false}
-                    value={profile.username}
-                    onChange={(e) =>
-                      setProfile((prev) => ({
-                        ...prev,
-                        username: e.target.value,
-                      }))
-                    }
-                    onBlur={(e) =>
-                      validateCol({
-                        type: "username",
-                        value: e.target.value,
-                      })
-                    }
-                    type="text"
-                    placeholder="Your username"
-                  />
-                  {status.username.status === false && (
-                    <Form.Control.Feedback type="invalid">
-                      {status.username.msg}
-                    </Form.Control.Feedback>
-                  )}
-                </InputGroup>
-              </Form.Group>
-              <Form.Group className="mb-3">
-                <Form.Control
-                  className="bio"
-                  as="textarea"
-                  rows={3}
-                  value={profile.bio}
-                  onChange={(e) =>
-                    setProfile((prev) => ({
-                      ...prev,
-                      bio: e.target.value,
-                    }))
-                  }
-                  placeholder="Your Bio"
-                />
-              </Form.Group>
-              <LangGroup
-                allLang={allLang}
-                selectLevelHandler={selectLevelHandler}
-                selectLangHandler={selectLangHandler}
-                form={selLang}
+  return (
+    <Container>
+      <Row className="p-3">
+        <Form>
+          <Form.Group className="mb-3">
+            <InputGroup hasValidation>
+              <Form.Control
+                isValid={status.email.status === true}
+                isInvalid={status.email.status === false}
+                value={profile.email}
+                onChange={(e) =>
+                  setProfile((prev) => ({
+                    ...prev,
+                    email: e.target.value,
+                  }))
+                }
+                onBlur={(e) =>
+                  validateCol({
+                    type: "email",
+                    value: e.target.value,
+                  })
+                }
+                type="email"
+                placeholder="Enter email"
               />
-              <Button onClick={submit} variant="light" type="button">
-                Submit
-              </Button>
-            </Form>
-          </Card.Body>
-        </Card>
-      </Container>
-    </div>
+
+              {status.email.status === false && (
+                <Form.Control.Feedback type="invalid">
+                  {status.email.msg}
+                </Form.Control.Feedback>
+              )}
+            </InputGroup>
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <InputGroup hasValidation>
+              <Form.Control
+                isValid={status.password.status === true}
+                isInvalid={status.password.status === false}
+                value={profile.password}
+                onChange={(e) =>
+                  setProfile((prev) => ({
+                    ...prev,
+                    password: e.target.value,
+                  }))
+                }
+                onBlur={(e) =>
+                  validateCol({
+                    type: "password",
+                    value: e.target.value,
+                  })
+                }
+                type="password"
+                placeholder="Password"
+              />
+              {status.password.status === false && (
+                <Form.Control.Feedback type="invalid">
+                  {status.password.msg}
+                </Form.Control.Feedback>
+              )}
+            </InputGroup>
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <InputGroup hasValidation>
+              <Form.Control
+                isValid={status.username.status === true}
+                isInvalid={status.username.status === false}
+                value={profile.username}
+                onChange={(e) =>
+                  setProfile((prev) => ({
+                    ...prev,
+                    username: e.target.value,
+                  }))
+                }
+                onBlur={(e) =>
+                  validateCol({
+                    type: "username",
+                    value: e.target.value,
+                  })
+                }
+                type="text"
+                placeholder="Your username"
+              />
+              {status.username.status === false && (
+                <Form.Control.Feedback type="invalid">
+                  {status.username.msg}
+                </Form.Control.Feedback>
+              )}
+            </InputGroup>
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Control
+              className="bio"
+              as="textarea"
+              rows={3}
+              value={profile.bio}
+              onChange={(e) =>
+                setProfile((prev) => ({
+                  ...prev,
+                  bio: e.target.value,
+                }))
+              }
+              placeholder="Your Bio"
+            />
+          </Form.Group>
+          <LangGroup
+            allLang={allLang}
+            selectLevelHandler={selectLevelHandler}
+            selectLangHandler={selectLangHandler}
+            form={selLang}
+          />
+          <Button onClick={submit} variant="outline-secondary" type="button">
+            Submit
+          </Button>
+        </Form>
+      </Row>
+    </Container>
   );
 };
 

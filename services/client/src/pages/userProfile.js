@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
+import { Navigate } from "react-router-dom";
 import { Col, Row, Container, Badge } from "react-bootstrap";
 import { getUserProfile, getUserLangs } from "../api";
 import placeholder from "../style/avatar-placeholder.png";
@@ -16,6 +17,8 @@ const UserProfile = () => {
   const { id } = useParams();
 
   useEffect(() => {
+    if (!id) return;
+
     getUserProfile(id)
       .then((res) => {
         const { username, email, pic, bio } = res.data.userprofile;
@@ -43,8 +46,12 @@ const UserProfile = () => {
       });
   }, []);
 
+  if (!id) {
+    return <Navigate to="/" />;
+  }
+
   return (
-    <Container>
+    <Container className="p-3">
       <Row>
         <Col lg={1}></Col>
         <Col lg={4}>
@@ -67,13 +74,13 @@ const UserProfile = () => {
             <h6 className="text-secondary">He / She offers</h6>
           </Row>
           <Row className="m-2">
-            <List_of_lang langs={profile.user_offer_langs} type="offer" />
+            <ListOfLang langs={profile.user_offer_langs} type="offer" />
           </Row>
           <Row>
             <h6 className="text-secondary">He / She accepts</h6>
           </Row>
           <Row className="m-2">
-            <List_of_lang langs={profile.user_acpt_langs} type="acpt" />
+            <ListOfLang langs={profile.user_acpt_langs} type="acpt" />
           </Row>
         </Col>
         <Col lg={4}>
@@ -88,7 +95,7 @@ const UserProfile = () => {
   );
 };
 
-const List_of_lang = ({ langs = [], type }) => {
+const ListOfLang = ({ langs = [], type }) => {
   return langs?.map((lang) => (
     <Row>
       <Col>

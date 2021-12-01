@@ -1,16 +1,17 @@
 import React, { useState, useContext } from "react";
-import { PopBoxCxt } from "../component/contexts";
+import { LoginCxt, PopBoxCxt } from "../component/contexts";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import { useNavigate } from "react-router-dom";
 import { userLogin } from "../api";
+import { Navigate } from "react-router-dom";
 
 const Login = () => {
   const navigate = useNavigate();
   const { setPopbox } = useContext(PopBoxCxt);
-
+  const { isLogin, setLogin } = useContext(LoginCxt);
   const [loginData, setData] = useState({
     username: "",
     password: "",
@@ -68,6 +69,7 @@ const Login = () => {
           },
         }));
       } else if (response.data.errorCode === 0) {
+        setLogin(true);
         navigate("/search");
       } else {
         setPopbox({
@@ -83,6 +85,10 @@ const Login = () => {
       });
     }
   };
+
+  if (isLogin) {
+    return <Navigate to="/" />;
+  }
 
   return (
     <div className="home-bg">

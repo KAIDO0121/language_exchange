@@ -1,10 +1,17 @@
 .home-bg {
+  position: relative;
   background-image: url("../style/bg1280x720.jpg");
   width: 100vw;
   height: 100vh;
   box-sizing: border-box;
   background-size: cover;
 }
+
+.nav {
+  height: 4rem;
+  z-index: 3;
+}
+
 .bg-search {
   background-image: url("../style/bg-search.jpg");
   width: 100vw;
