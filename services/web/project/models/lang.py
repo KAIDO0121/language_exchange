@@ -34,8 +34,4 @@ class OfferLanguage(db.Model):
     
     def commit(self):
         db.session.commit()
-    
-    def edit_entry(self, updated):
-        self.level = updated["level"]
-        self.lang_name = updated["lang_name"]
-        db.session.commit()
+

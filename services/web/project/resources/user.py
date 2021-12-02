@@ -4,7 +4,6 @@ from project.models import db
 from flask import request
 from project.models.user import User
 from project.schemas.user import UserSchema
-from project.models.lang import AcceptLanguage, OfferLanguage
 from project.schemas.lang import AcceptLanguageSchema, OfferLanguageSchema
 import base64
 from project.blacklist import BLACKLIST
@@ -213,8 +212,6 @@ allLang = [{ 'code' : 'ab', 'name' : 'Abkhazian' },
 
 user_schema = UserSchema()
 
-# my_lang_schema = UserSchema(only=['user_acpt_langs','user_offer_langs'])
-
 offer_schema = OfferLanguageSchema(many=True)
 
 acpt_schema = AcceptLanguageSchema(many=True)
@@ -296,14 +293,8 @@ class EditProfile(Resource):
 
         if user:
             user.bio = user_json["bio"]
-            
-            for lang in user_json["user_offer_langs"]:
-                OfferLanguage.edit_entry(lang)
 
-            for lang in user_json["user_acpt_langs"]:
-                AcceptLanguage.edit_entry(lang)
-      
-            user.save_to_db()
+            user.update_user_langs(get_jwt_identity(), user_json["user_offer_langs"], user_json["user_acpt_langs"])
 
             return { "message":"OK", "errorCode": 0}, 200
 
@@ -321,10 +312,11 @@ class GetMyProfile(Resource):
     def get(cls):
         
         user = User.find_by_user_id(get_jwt_identity())
+
+        _user = user_schema.dump(user)
+        
         if user.pic:
             pic = base64.b64encode(user.pic).decode('ascii') 
-        _user = user_schema.dump(user)
-        if _user.get("pic"):
             _user["pic"] = "data:image/png;base64, " + pic
 
         return { "userprofile":_user, "errorCode": 0 }, 200
@@ -334,10 +326,10 @@ class GetUserProfile(Resource):
     def get(cls):
         id = request.args.get('id')
         user = User.find_by_user_id(id)
+        _user = user_schema.dump(user)
+        
         if user.pic:
             pic = base64.b64encode(user.pic).decode('ascii') 
-        _user = user_schema.dump(user)
-        if _user.get("pic"):
             _user["pic"] = "data:image/png;base64, " + pic
 
         return { "userprofile":_user, "errorCode": 0 }, 200

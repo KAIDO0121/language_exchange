@@ -6,8 +6,14 @@ import Button from "react-bootstrap/Button";
 import { useSelLang } from "../component/hook";
 import { matchUserByLang } from "../api";
 import LangGroup from "../component/langGroup";
-import Spinner from "react-bootstrap/Spinner";
-import { Col, Row, Container, ListGroup, Badge } from "react-bootstrap";
+import {
+  Col,
+  Row,
+  Container,
+  ListGroup,
+  Badge,
+  Spinner,
+} from "react-bootstrap";
 import placeholder from "../style/avatar-placeholder.png";
 import { FixedSizeList as List } from "react-window";
 import { Link } from "react-router-dom";
@@ -40,22 +46,32 @@ const Search = () => {
     <Container>
       <Row className="p-3">
         <Card className="text-center">
-          {!isLoading && (
-            <Card.Body>
-              <Form>
-                <LangGroup
-                  allLang={allLang}
-                  selectLevelHandler={selectLevelHandler}
-                  selectLangHandler={selectLangHandler}
-                  form={selLang}
+          <Card.Body>
+            <Form>
+              <LangGroup
+                allLang={allLang}
+                selectLevelHandler={selectLevelHandler}
+                selectLangHandler={selectLangHandler}
+                form={selLang}
+              />
+            </Form>
+
+            {isLoading ? (
+              <Button variant="light" disabled>
+                <Spinner
+                  style={{ marginRight: "0.5rem" }}
+                  as="span"
+                  animation="border"
+                  size="sm"
                 />
-              </Form>
+                Loading...
+              </Button>
+            ) : (
               <Button onClick={submit} variant="light" type="button">
                 Find partners
               </Button>
-            </Card.Body>
-          )}
-          {isLoading && <Spinner animation="border" />}
+            )}
+          </Card.Body>
         </Card>
       </Row>
       <Row>

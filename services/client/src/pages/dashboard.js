@@ -93,7 +93,7 @@ const Dashboard = () => {
       .catch((error) => {
         console.error(error);
       });
-  }, []);
+  }, [isLogin]);
 
   if (!isLogin) {
     return <Navigate to="/" />;

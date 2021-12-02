@@ -1,14 +1,12 @@
 from project.ma import ma
 from project.models.user import User
-from project.schemas.lang import AcceptLanguageSchema, OfferLanguageSchema
-from project.schemas.image import ImageSchema
-from marshmallow import fields, validates, ValidationError, EXCLUDE, Schema
+from marshmallow import validates, ValidationError
 import re
 
 
 class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
-        load_only = ('password','pic', )
+        load_only = ('password','pic',)
         exclude = ('id',)
         model = User
         load_instance = True

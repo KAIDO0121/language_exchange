@@ -31,7 +31,26 @@ class User(db.Model, UserMixin):
         return cls.query.filter_by(id=_id).first()
 
     @classmethod
-    def get_user_langs(cls, **kwargs) -> "User":
+    def update_user_langs(cls, id, offers, acpts) -> "User":
+        try:
+            user_offer_langs = OfferLanguage.query.filter(OfferLanguage.user_id==id).all()
+            user_acpt_langs = AcceptLanguage.query.filter(AcceptLanguage.user_id==id).all()
+
+            for i, lang in enumerate(user_offer_langs):
+                lang.lang_name = offers[i]["lang_name"]
+                lang.level = offers[i]["level"]
+
+            for i, lang in enumerate(user_acpt_langs):
+                lang.lang_name = acpts[i]["lang_name"]
+                lang.level = acpts[i]["level"]
+
+            db.session.commit()
+
+        except Exception as e:
+            print(e)
+
+    @classmethod
+    def get_user_langs(cls, **kwargs) -> "dict":
         _id = kwargs.get("id")
         if not _id:  
             _id = kwargs.get("user")["id"]
@@ -47,7 +66,7 @@ class User(db.Model, UserMixin):
             print(e)
 
     @classmethod
-    def match_by_langs(cls,  payload: list) -> "User":
+    def match_by_langs(cls,  payload: list) -> "dict":
         try:
 
             acpt_1 = payload["user_acpt_langs"][0]
@@ -95,10 +114,9 @@ class User(db.Model, UserMixin):
         except Exception as e:
             print(e)    
 
-    def save_to_db(self) -> None:
+    def save_to_db(self):
         db.session.add(self)
         return self
-
-    def delete_from_db(self) -> None:
-        db.session.delete(self)
+    
+    def commit(self) -> None:
         db.session.commit()

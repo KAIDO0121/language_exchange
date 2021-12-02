@@ -1,9 +1,7 @@
-import React, { useState, useContext } from "react";
-import { Navigate } from "react-router-dom";
+import React, { useState, useContext, useEffect } from "react";
 import { PopBoxCxt, LoginCxt } from "../component/contexts";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
-import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
 import { useNavigate } from "react-router-dom";
@@ -41,6 +39,10 @@ const Register = () => {
       msg: "",
     },
   });
+
+  useEffect(() => {
+    if (isLogin) navigate("/dashboard");
+  }, [isLogin]);
 
   const validateCol = async ({ type, value }) => {
     if (type === "email") {
@@ -140,12 +142,12 @@ const Register = () => {
           username: profile.username,
           password: profile.password,
         });
+
         if (loginRes.data.errorCode === 0) {
           localStorage.setItem("access_token", loginRes.data.access_token);
           localStorage.setItem("refresh_token", loginRes.data.refresh_token);
           setLogin(true);
         }
-        navigate("/dashboard");
       } else {
         setPopbox({
           isShow: true,
@@ -160,10 +162,6 @@ const Register = () => {
       });
     }
   };
-
-  if (isLogin) {
-    return <Navigate to="/" />;
-  }
 
   return (
     <Container>

@@ -66,13 +66,11 @@ const App = () => {
   }
 
   useEffect(() => {
-    console.log(token);
     if (token) {
       setLogin(true);
     } else {
       setLogin(false);
     }
-    console.log(isLogin);
   }, [token]);
 
   return (
