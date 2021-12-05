@@ -62,7 +62,7 @@ const App = () => {
           localStorage.setItem("access_token", res.data.access_token);
         })
         .catch((err) => console.error(err));
-    }, 240000);
+    }, 300000);
   }
 
   useEffect(() => {
@@ -76,17 +76,21 @@ const App = () => {
   return (
     <>
       <PopBoxCxt.Provider value={{ setPopbox }}>
-        <PopBox isShow={popbox.isShow} content={popbox.content} />
+        <PopBox {...popbox} />
         <LoginCxt.Provider value={{ setLogin, isLogin }}>
           <Router>
             <Menu>
               {isLogin &&
                 defBtns.loginBtns.map((el) => (
-                  <Link to={el.path}>{el.text}</Link>
+                  <Link key={el.text} to={el.path}>
+                    {el.text}
+                  </Link>
                 ))}
               {!isLogin &&
                 defBtns.notLoginBtns.map((el) => (
-                  <Link to={el.path}>{el.text}</Link>
+                  <Link key={el.text} to={el.path}>
+                    {el.text}
+                  </Link>
                 ))}
             </Menu>
             <Nav />

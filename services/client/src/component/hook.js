@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 import { getAllLang, getMyLangs } from "../api";
 
@@ -9,26 +9,10 @@ export const useSelLang = () => {
         lang_name: "English",
         level: 1,
       },
-      {
-        lang_name: "Japanese",
-        level: 1,
-      },
-      {
-        lang_name: "French",
-        level: 1,
-      },
     ],
     user_acpt_langs: [
       {
         lang_name: "Chinese",
-        level: 1,
-      },
-      {
-        lang_name: "Swedish",
-        level: 1,
-      },
-      {
-        lang_name: "Arabic",
         level: 1,
       },
     ],
@@ -43,7 +27,7 @@ export const useSelLang = () => {
         const update = prev.user_acpt_langs;
 
         update[index] = {
-          lang_name: update[index].lang_name,
+          lang_name: update[index]?.lang_name,
           level,
         };
 
@@ -57,7 +41,7 @@ export const useSelLang = () => {
         const update = prev.user_offer_langs;
 
         update[index] = {
-          lang_name: update[index].lang_name,
+          lang_name: update[index]?.lang_name,
           level,
         };
 
@@ -69,15 +53,13 @@ export const useSelLang = () => {
     }
   };
 
-  const selectLangHandler = ({ type, index, name }) => {
+  const selectLangHandler = ({ type, index, name, idx }) => {
     if (type === "acpt") {
       setSelLang((prev) => {
-        //  保留acpt_lang的其餘屬性，只改變acpt_lang[1].level
         const update = prev.user_acpt_langs;
-
         update[index] = {
-          lang_name: name,
-          level: update[index].level,
+          lang_name: idx === 0 ? false : name,
+          level: update[index]?.level,
         };
 
         return {
@@ -90,8 +72,8 @@ export const useSelLang = () => {
         const update = prev.user_offer_langs;
 
         update[index] = {
-          lang_name: name,
-          level: update[index].level,
+          lang_name: idx === 0 ? false : name,
+          level: update[index]?.level,
         };
 
         return {

@@ -38,6 +38,10 @@ const Register = () => {
       status: null,
       msg: "",
     },
+    langs: {
+      status: null,
+      msg: "",
+    },
   });
 
   useEffect(() => {
@@ -131,10 +135,18 @@ const Register = () => {
       validateCol({ type: "username", value: profile.username }),
       validateCol({ type: "password", value: profile.password }),
     ]);
-
-    if (validateAllCol.includes(undefined)) return;
+    if (validateAllCol.includes(undefined) || !status.langs.status) return;
     try {
-      const updated = { ...profile, ...selLang };
+      const _filteredLang = {
+        user_offer_langs: selLang.user_offer_langs.filter(
+          (el) => el.lang_name !== false
+        ),
+        user_acpt_langs: selLang.user_acpt_langs.filter(
+          (el) => el.lang_name !== false
+        ),
+      };
+
+      const updated = { ...profile, ..._filteredLang };
       const response = await registerUser(updated);
 
       if (response.data.errorCode === 0) {
@@ -170,8 +182,8 @@ const Register = () => {
           <Form.Group className="mb-3">
             <InputGroup hasValidation>
               <Form.Control
-                isValid={status.email.status === true}
-                isInvalid={status.email.status === false}
+                isValid={status.email?.status === true}
+                isInvalid={status.email?.status === false}
                 value={profile.email}
                 onChange={(e) =>
                   setProfile((prev) => ({
@@ -272,6 +284,7 @@ const Register = () => {
             selectLevelHandler={selectLevelHandler}
             selectLangHandler={selectLangHandler}
             form={selLang}
+            setStatus={setStatus}
           />
           <Button onClick={submit} variant="outline-secondary" type="button">
             Submit

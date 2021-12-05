@@ -3,6 +3,7 @@ from project.models.lang import OfferLanguage
 from flask_login import UserMixin
 from project.models.lang import AcceptLanguage
 from sqlalchemy import or_, and_
+import base64
 
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
@@ -16,7 +17,16 @@ class User(db.Model, UserMixin):
     pic = db.Column(db.LargeBinary, nullable=True)
 
     def as_dict(self):
-       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        user_dict = {}
+        for c in self.__table__.columns:
+            if c.name != "pic":
+                user_dict[c.name] = getattr(self, c.name)
+            elif getattr(self, c.name):
+                pic = base64.b64encode(getattr(self, c.name)).decode('ascii') 
+                user_dict["pic"] = "data:image/png;base64, " + pic
+            else:
+                user_dict[c.name] = None
+        return user_dict
 
     @classmethod
     def find_by_email(cls, email: str) -> "User":
@@ -68,49 +78,46 @@ class User(db.Model, UserMixin):
     @classmethod
     def match_by_langs(cls,  payload: list) -> "dict":
         try:
-
             acpt_1 = payload["user_acpt_langs"][0]
-            acpt_2 = None
-            acpt_3 = None
+            acpt_2 = {"lang_name": 'default', "level": float("inf")}
+            acpt_3 = {"lang_name": 'default', "level": float("inf")}
             users = set()
+
             if len(payload["user_acpt_langs"]) > 1 :
                 acpt_2 = payload["user_acpt_langs"][1]
             if len(payload["user_acpt_langs"]) > 2 :
                 acpt_3 = payload["user_acpt_langs"][2]
-
+            
+            
             for offer_lang in payload["user_offer_langs"]:
-                
+                    
                     res = cls.query.join(AcceptLanguage).join(OfferLanguage).filter(and_(
                         AcceptLanguage.lang_name==offer_lang['lang_name'], 
                         AcceptLanguage.level<=offer_lang['level']
-                    )).filter(or_(and_(OfferLanguage.lang_name >= acpt_1['lang_name'], OfferLanguage.level >= acpt_1['level'] ), 
-                        and_(OfferLanguage.lang_name >= acpt_2['lang_name'], OfferLanguage.level >= acpt_2['level'] ), 
-                        and_(OfferLanguage.lang_name >= acpt_3['lang_name'], OfferLanguage.level >= acpt_3['level'] ) 
-                    )).distinct().all()
+                    )).filter(and_(OfferLanguage.lang_name == acpt_1['lang_name'], OfferLanguage.level >= acpt_1['level'] ) | 
+                        and_(OfferLanguage.lang_name == acpt_2['lang_name'], OfferLanguage.level >= acpt_2['level'] ) |
+                        and_(OfferLanguage.lang_name == acpt_3['lang_name'], OfferLanguage.level >= acpt_3['level'] ) 
+                    ).distinct().all()
 
                     if res:
                         users.update(res)
             
             json_users = []
-
+            
             for obj in list(users):
                 json_users.append(obj.as_dict())
 
             langs = [User.get_user_langs(user=user) for user in json_users ]
-
-            
+         
             def populate_user_lang(index, user) :
                 user["user_offer_langs"] = langs[index]["user_offer_langs"] 
                 user["user_acpt_langs"] = langs[index]["user_acpt_langs"] 
                 return user
 
-
             users_with_langs = [populate_user_lang(ind, user) for ind, user in enumerate(json_users) ]
-
 
             return users_with_langs
 
-            
         except Exception as e:
             print(e)    
 

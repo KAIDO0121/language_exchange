@@ -2,6 +2,8 @@ import axios from "axios";
 
 const authRequests = ["logout", "getMyProfile", "getMyLangs", "editProfile"];
 
+const CancelToken = axios.CancelToken;
+
 const userRequest = axios.create({
   baseURL: "http://localhost:1337",
   headers: { "Content-Type": "application/json" },
@@ -21,6 +23,17 @@ userRequest.interceptors.request.use((config) => {
     config.headers.Authorization =
       "Bearer " + localStorage.getItem("access_token");
     config.headers["Content-Type"] = "multipart/form-data";
+  }
+  if (_url === "getUserLangs" || _url === "getUserProfile") {
+    const isnum = /^\d+$/.test(config.params.id);
+    if (!isnum) {
+      return {
+        ...config,
+        cancelToken: new CancelToken((cancel) =>
+          cancel("Request cancelled due to invalid id params")
+        ),
+      };
+    }
   }
   if (_url === "tokenRefresh") {
     config.headers.Authorization =

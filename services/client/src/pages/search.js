@@ -3,6 +3,7 @@ import { PopBoxCxt } from "../component/contexts";
 import Form from "react-bootstrap/Form";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
+import { v4 as uuidv4 } from "uuid";
 import { useSelLang } from "../component/hook";
 import { matchUserByLang } from "../api";
 import LangGroup from "../component/langGroup";
@@ -22,13 +23,33 @@ const Search = () => {
   const { setPopbox } = useContext(PopBoxCxt);
   const [list, setList] = useState([]);
   const [isLoading, setLoading] = useState(false);
+
+  const [status, setStatus] = useState({
+    langs: {
+      status: null,
+      msg: "",
+    },
+  });
+
   const { allLang, selectLevelHandler, selectLangHandler, selLang } =
     useSelLang();
 
   const submit = async () => {
+    if (!status.langs.status) return;
+
     setLoading(true);
+
+    const _filteredLang = {
+      user_offer_langs: selLang.user_offer_langs.filter(
+        (el) => el.lang_name !== false
+      ),
+      user_acpt_langs: selLang.user_acpt_langs.filter(
+        (el) => el.lang_name !== false
+      ),
+    };
+
     try {
-      const response = await matchUserByLang(selLang);
+      const response = await matchUserByLang(_filteredLang);
       setLoading(false);
       if (response.data.errorCode === 0) {
         setList(response.data.users);
@@ -49,6 +70,7 @@ const Search = () => {
           <Card.Body>
             <Form>
               <LangGroup
+                setStatus={setStatus}
                 allLang={allLang}
                 selectLevelHandler={selectLevelHandler}
                 selectLangHandler={selectLangHandler}
@@ -94,7 +116,7 @@ const Search = () => {
 const User = (props) => {
   const { data, index, style } = props;
   return (
-    <ListGroup.Item key={`${data[index]}-${index}`} style={style}>
+    <ListGroup.Item style={style}>
       <Row>
         <Col lg={2}>
           {
@@ -148,10 +170,13 @@ const TableHeader = () => (
 const ListOfLang = ({ langs, type }) => {
   return langs.map((lang) => (
     <>
-      <Badge className={`m-1 ${type === "offer" ? "offer_lang" : "acpt_lang"}`}>
+      <Badge
+        key={uuidv4()}
+        className={`m-1 ${type === "offer" ? "offer_lang" : "acpt_lang"}`}
+      >
         {lang.lang_name}
       </Badge>
-      <Badge className="m-1" bg="light" text="dark">
+      <Badge key={uuidv4()} className="m-1" bg="light" text="dark">
         Lv.{lang.level}
       </Badge>
     </>

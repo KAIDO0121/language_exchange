@@ -2,42 +2,36 @@ version: "3.8"
 
 services:
   web:
-    build: ./services/web
+    build:
+      context: ./services/web
+      dockerfile: Dockerfile.prod
     command: gunicorn --bind 0.0.0.0:5000 manage:app
-    volumes:
-      - ./services/web/:/usr/src/app/
-    ports:
-      - 5000:5000
+    expose:
+      - 5000
     env_file:
-      - ./.env.devs
+      - ./.env.prod
     depends_on:
       - db
     entrypoint:
-      - /usr/src/app/entrypoint.sh
+      - /home/app/web/entrypoint.prod.sh
   db:
     image: postgres:13-alpine
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
-      - ./create_fill_tables.sql:/docker-entrypoint-initdb.d/create_fill_tables.sql
-    environment:
-      - POSTGRES_USER=hello_flask
-      - POSTGRES_PASSWORD=hello_flask
-      - POSTGRES_DB=hello_flask_dev
+      - postgres_data_prod:/var/lib/postgresql/data/
+    env_file:
+      - ./.env.prod.db
   client:
     stdin_open: true
     environment:
       - CHOKIDAR_USEPOLLING=true
-    build: ./services/client
-    volumes:
-      - ./services/client:/app
-      - /app/node_modules
-  nginx:
-    depends_on:
-      - web
-      - client
-    restart: always
-    build: ./services/nginx
+    build:
+      context: ./services/client
+      dockerfile: Dockerfile.prod
     ports:
-      - "1337:80"
+      - 80:80
+      - 443:443
+    volumes:
+      - /home/ubuntu/ssl:/etc/nginx/certs
+
 volumes:
-  postgres_data:
+  postgres_data_prod:

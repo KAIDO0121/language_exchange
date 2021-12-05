@@ -16,8 +16,6 @@ from flask_jwt_extended import (
     get_jwt
 )
 
-# from blacklist import BLACKLIST
-
 USER_ALREADY_EXISTS = "A user with that username already exists."
 USER_NOT_FOUND = "User not found."
 USER_DELETED = "User deleted."
@@ -25,7 +23,9 @@ INVALID_CREDENTIALS = "Invalid credentials!"
 USER_LOGGED_OUT = "User <id={user_id}> successfully logged out."
 EMAIL_ALREADY_EXISTS = "Email already exists."
 
-allLang = [{ 'code' : 'ab', 'name' : 'Abkhazian' },
+allLang = [
+    { 'code' : False, 'name' : 'Please select a language' },
+    { 'code' : 'ab', 'name' : 'Abkhazian' },
     { 'code' : 'aa', 'name' : 'Afar' },
     { 'code' : 'af', 'name' : 'Afrikaans' },
     { 'code' : 'ak', 'name' : 'Akan' },
@@ -230,9 +230,7 @@ class UserLogin(Resource):
     def post(cls):
         user_json = request.get_json()
         user = User.find_by_username(user_json['username'])
-        # this is what the `authenticate()` function did in security.py
         if user and check_password_hash(user.password, user_json['password']):
-            # identity= is what the identity() function did in security.py—now stored in the JWT
             access_token = create_access_token(identity=user.id, fresh=True)
             refresh_token = create_refresh_token(user.id)
             return {"access_token": access_token, "refresh_token": refresh_token, "errorCode": 0}, 200
@@ -250,7 +248,6 @@ class TokenRefresh(Resource):
         new_token = create_access_token(identity=current_user, fresh=False)
         return {"access_token": new_token}, 200
 
-
 class UserRegister(Resource):
     @classmethod
     def post(cls):
@@ -259,28 +256,28 @@ class UserRegister(Resource):
         user = user_schema.load(user_json, session=db.session)
 
         user.password = generate_password_hash(user.password)
+        try: # handling race condition
+            b = user.save_to_db()
+            # breaking the capsulation just for workaround 
+            db.session.add_all(user.user_offer_langs)
 
-        b = user.save_to_db()
+            db.session.add_all(user.user_acpt_langs)
 
-        # breaking the capsulation just for workaround 
-        db.session.add_all(user.user_offer_langs)
+            db.session.commit()
 
-        db.session.add_all(user.user_acpt_langs)
+            return { "user" : user_schema.dump(b), "errorCode": 0 }, 200
 
-        db.session.commit()
-
-        return { "user" : user_schema.dump(b), "errorCode": 0 }, 200
+        except Exception as e:
+            print(e)
+            return { "message" : e, "errorCode": 1 }, 200
 
 class MatchUserByLang(Resource):
-    
     @classmethod
     def post(cls):
         payload = request.get_json()
-        
         users = User.match_by_langs(payload)
 
         return { "users" : users, "errorCode": 0 }, 200
-
 
 class EditProfile(Resource): 
     @classmethod
@@ -325,17 +322,23 @@ class GetUserProfile(Resource):
     @classmethod
     def get(cls):
         id = request.args.get('id')
-        user = User.find_by_user_id(id)
-        _user = user_schema.dump(user)
-        
-        if user.pic:
-            pic = base64.b64encode(user.pic).decode('ascii') 
-            _user["pic"] = "data:image/png;base64, " + pic
+        try:
+            user = User.find_by_user_id(id)
+            if user:
+                _user = user_schema.dump(user)
+                
+                if user.pic:
+                    pic = base64.b64encode(user.pic).decode('ascii') 
+                    _user["pic"] = "data:image/png;base64, " + pic
 
-        return { "userprofile":_user, "errorCode": 0 }, 200
+                return { "userprofile":_user, "errorCode": 0 }, 200
+            else:
+                return { "userprofile": None, "errorCode": 1 }, 200
+        except Exception as e:
+            print(e)    
+            return { "message": e, "errorCode": 2 }, 200
 
 class GetMyLangs(Resource):
-    
     @classmethod
     @jwt_required()
     def get(cls):
@@ -346,7 +349,6 @@ class GetMyLangs(Resource):
             print(e)    
 
 class GetUserLangs(Resource):
-    
     @classmethod
     def get(cls):
         id = request.args.get('id')
@@ -355,7 +357,7 @@ class GetUserLangs(Resource):
             return {"langs":langs, "errorCode": 0}, 200
         except Exception as e:
             print(e)    
-
+            return { "message": e, "errorCode": 2 }, 200
 
 class CheckUserName(Resource):
     @classmethod

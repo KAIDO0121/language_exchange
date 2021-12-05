@@ -16,16 +16,6 @@ def create_db():
 def runserver():
     app.run(debug=True, host="0.0.0.0", port=5000)
 
-'''
-@cli.command("seed_db")
-def seed_db():
-    u = User(email="michael@mherman.org")
-    o = Order(price='123')
-    db.session.add(u)
-    db.session.commit()
-    db.session.add(o)
-    db.session.commit()
-'''
 
 if __name__ == "__main__":
     manager.run()

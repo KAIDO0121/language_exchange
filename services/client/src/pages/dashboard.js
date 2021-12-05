@@ -28,13 +28,29 @@ const Dashboard = () => {
     useSelLang();
 
   const [status, setStatus] = useState({
-    status: null,
-    msg: "",
+    langs: {
+      status: null,
+      msg: "",
+    },
+    pic: {
+      status: null,
+      msg: "",
+    },
   });
 
   const submit = async () => {
+    if (!status.langs.status) return;
     try {
-      const updated = { ...profile, ...selLang };
+      const _filteredLang = {
+        user_offer_langs: selLang.user_offer_langs.filter(
+          (el) => el.lang_name !== false
+        ),
+        user_acpt_langs: selLang.user_acpt_langs.filter(
+          (el) => el.lang_name !== false
+        ),
+      };
+
+      const updated = { ...profile, ..._filteredLang };
       const response = await editProfile(updated);
 
       if (image) {
@@ -42,15 +58,15 @@ const Dashboard = () => {
         img.append("image", image, image.name);
         const updatePic = await uploadPic(img);
         if (updatePic.data.errorCode === 0) {
-          setStatus({
-            status: true,
-            msg: "",
-          });
+          setStatus((prev) => ({
+            ...prev,
+            pic: { status: true, msg: " " },
+          }));
         } else {
-          setStatus({
-            status: false,
-            msg: updatePic.data.message,
-          });
+          setStatus((prev) => ({
+            ...prev,
+            pic: { status: false, msg: updatePic.data.message },
+          }));
           setPopbox({
             isShow: true,
             content: updatePic.data.message,
@@ -131,6 +147,7 @@ const Dashboard = () => {
                 selectLevelHandler={selectLevelHandler}
                 selectLangHandler={selectLangHandler}
                 form={selLang}
+                setStatus={setStatus}
               />
               <Row className="mb-3">
                 <Form.Group className="mb-3">
@@ -156,15 +173,15 @@ const Dashboard = () => {
                 </Form.Label>
                 <InputGroup hasValidation>
                   <Form.Control
-                    isValid={status.status === true}
-                    isInvalid={status.status === false}
+                    isValid={status.pic.status === true}
+                    isInvalid={status.pic.status === false}
                     type="file"
                     onChange={(e) => setImage(e.target.files[0])}
                   />
 
-                  {status.status === false && (
+                  {status.pic.status === false && (
                     <Form.Control.Feedback type="invalid">
-                      {status.msg}
+                      {status.pic.msg}
                     </Form.Control.Feedback>
                   )}
                 </InputGroup>

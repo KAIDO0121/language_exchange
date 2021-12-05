@@ -69,6 +69,8 @@ const Login = () => {
           },
         }));
       } else if (response.data.errorCode === 0) {
+        localStorage.setItem("access_token", response.data.access_token);
+        localStorage.setItem("refresh_token", response.data.refresh_token);
         setLogin(true);
         navigate("/search");
       } else {

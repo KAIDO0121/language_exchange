@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -8,18 +8,11 @@ const LangGroup = ({
   allLang,
   selectLangHandler,
   selectLevelHandler,
+  setStatus,
   form = {
     user_offer_langs: [
       {
         lang_name: "English",
-        level: 1,
-      },
-      {
-        lang_name: "Japanese",
-        level: 1,
-      },
-      {
-        lang_name: "French",
         level: 1,
       },
     ],
@@ -28,23 +21,53 @@ const LangGroup = ({
         lang_name: "Chinese",
         level: 1,
       },
-      {
-        lang_name: "Swedish",
-        level: 1,
-      },
-      {
-        lang_name: "Arabic",
-        level: 1,
-      },
     ],
   },
 }) => {
+  const [allValid, setAllValid] = useState(new Array(6));
+
   const isDuplicated = (name) => {
     return (
       form.user_acpt_langs.some((el) => el.lang_name === name) ||
       form.user_offer_langs.some((el) => el.lang_name === name)
     );
   };
+  const validateLevel = (value, idx) => {
+    if (value > 10 || value < 1) {
+      setAllValid((prev) => {
+        const updated = [...prev];
+        updated[idx] = false;
+        return updated;
+      });
+    } else {
+      setAllValid((prev) => {
+        const updated = [...prev];
+        updated[idx] = true;
+        return updated;
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (allValid.includes(false)) {
+      setStatus((prev) => ({
+        ...prev,
+        langs: {
+          status: false,
+          msg: "Level inputs contains invalid values",
+        },
+      }));
+    } else {
+      setStatus((prev) => ({
+        ...prev,
+        langs: {
+          status: true,
+          msg: "",
+        },
+      }));
+    }
+  }, [allValid]);
+
   return (
     <>
       <Row className="mb-3">
@@ -66,7 +89,7 @@ const LangGroup = ({
               <option
                 value={el.name}
                 selected={el.name === form.user_acpt_langs[0].lang_name}
-                disabled={isDuplicated(el.name)}
+                disabled={isDuplicated(el.name) || el.code === ""}
                 key={`${el.code}-0`}
               >
                 {el.name}
@@ -84,6 +107,7 @@ const LangGroup = ({
                 level: e.target.value,
               })
             }
+            onBlur={(e) => validateLevel(e.target.value, 0)}
             type="number"
             min={1}
             max={10}
@@ -93,17 +117,19 @@ const LangGroup = ({
         <Form.Group as={Col}>
           <Form.Select
             className="mr-2"
+            defaultValue="Please select a language"
             onChange={(e) =>
               selectLangHandler({
                 index: 1,
                 name: e.target.value,
                 type: "acpt",
+                idx: e.target.selectedIndex,
               })
             }
           >
             {allLang.map((el) => (
               <option
-                selected={el.name === form.user_acpt_langs[1].lang_name}
+                selected={el.name === form.user_acpt_langs?.[1]?.lang_name}
                 disabled={isDuplicated(el.name)}
                 key={`${el.code}-1`}
               >
@@ -114,7 +140,8 @@ const LangGroup = ({
         </Form.Group>
         <Form.Group as={Col}>
           <Form.Control
-            value={form.user_acpt_langs[1].level}
+            value={form.user_acpt_langs?.[1]?.level}
+            disabled={form.user_acpt_langs?.[1]?.lang_name ? false : true}
             onChange={(e) =>
               selectLevelHandler({
                 type: "acpt",
@@ -122,6 +149,7 @@ const LangGroup = ({
                 level: e.target.value,
               })
             }
+            onBlur={(e) => validateLevel(e.target.value, 1)}
             min={1}
             max={10}
             type="number"
@@ -131,18 +159,20 @@ const LangGroup = ({
         <Form.Group as={Col}>
           <Form.Select
             className="mr-2"
+            defaultValue="Please select a language"
             onChange={(e) =>
               selectLangHandler({
                 index: 2,
                 name: e.target.value,
                 type: "acpt",
+                idx: e.target.selectedIndex,
               })
             }
           >
             {allLang.map((el) => {
               return (
                 <option
-                  selected={el.name === form.user_acpt_langs[2].lang_name}
+                  selected={el.name === form.user_acpt_langs?.[2]?.lang_name}
                   disabled={isDuplicated(el.name)}
                   key={`${el.code}-2`}
                 >
@@ -154,7 +184,8 @@ const LangGroup = ({
         </Form.Group>
         <Form.Group as={Col}>
           <Form.Control
-            value={form.user_acpt_langs[2].level}
+            value={form.user_acpt_langs?.[2]?.level}
+            disabled={form.user_acpt_langs?.[2]?.lang_name ? false : true}
             onChange={(e) =>
               selectLevelHandler({
                 type: "acpt",
@@ -162,6 +193,7 @@ const LangGroup = ({
                 level: e.target.value,
               })
             }
+            onBlur={(e) => validateLevel(e.target.value, 2)}
             min={1}
             max={10}
             type="number"
@@ -182,6 +214,7 @@ const LangGroup = ({
                 index: 0,
                 name: e.target.value,
                 type: "offer",
+                idx: e.target.selectedIndex,
               })
             }
           >
@@ -189,7 +222,7 @@ const LangGroup = ({
               return (
                 <option
                   selected={el.name === form.user_offer_langs[0].lang_name}
-                  disabled={isDuplicated(el.name)}
+                  disabled={isDuplicated(el.name) || el.code === ""}
                   key={`${el.code}-2`}
                 >
                   {el.name}
@@ -208,6 +241,7 @@ const LangGroup = ({
                 level: e.target.value,
               })
             }
+            onBlur={(e) => validateLevel(e.target.value, 3)}
             type="number"
             min={1}
             max={10}
@@ -217,18 +251,20 @@ const LangGroup = ({
         <Form.Group as={Col}>
           <Form.Select
             className="mr-2"
+            defaultValue="Please select a language"
             onChange={(e) =>
               selectLangHandler({
                 index: 1,
                 name: e.target.value,
                 type: "offer",
+                idx: e.target.selectedIndex,
               })
             }
           >
             {allLang.map((el) => {
               return (
                 <option
-                  selected={el.name === form.user_offer_langs[1].lang_name}
+                  selected={el.name === form.user_offer_langs?.[1]?.lang_name}
                   disabled={isDuplicated(el.name)}
                   key={`${el.code}-2`}
                 >
@@ -240,7 +276,8 @@ const LangGroup = ({
         </Form.Group>
         <Form.Group as={Col}>
           <Form.Control
-            value={form.user_offer_langs[1].level}
+            value={form.user_offer_langs?.[1]?.level}
+            disabled={form.user_offer_langs?.[1]?.lang_name ? false : true}
             onChange={(e) =>
               selectLevelHandler({
                 type: "offer",
@@ -248,6 +285,7 @@ const LangGroup = ({
                 level: e.target.value,
               })
             }
+            onBlur={(e) => validateLevel(e.target.value, 4)}
             min={1}
             max={10}
             type="number"
@@ -257,18 +295,20 @@ const LangGroup = ({
         <Form.Group as={Col}>
           <Form.Select
             className="mr-2"
+            defaultValue="Please select a language"
             onChange={(e) =>
               selectLangHandler({
                 index: 2,
                 name: e.target.value,
                 type: "offer",
+                idx: e.target.selectedIndex,
               })
             }
           >
             {allLang.map((el) => {
               return (
                 <option
-                  selected={el.name === form.user_offer_langs[2].lang_name}
+                  selected={el.name === form.user_offer_langs?.[2]?.lang_name}
                   disabled={isDuplicated(el.name)}
                   key={`${el.code}-2`}
                 >
@@ -280,7 +320,8 @@ const LangGroup = ({
         </Form.Group>
         <Form.Group as={Col}>
           <Form.Control
-            value={form.user_offer_langs[2].level}
+            value={form.user_offer_langs?.[2]?.level}
+            disabled={form.user_offer_langs?.[2]?.lang_name ? false : true}
             onChange={(e) =>
               selectLevelHandler({
                 type: "offer",
@@ -288,6 +329,7 @@ const LangGroup = ({
                 level: e.target.value,
               })
             }
+            onBlur={(e) => validateLevel(e.target.value, 5)}
             min={1}
             max={10}
             type="number"
