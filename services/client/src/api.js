@@ -5,7 +5,7 @@ const authRequests = ["logout", "getMyProfile", "getMyLangs", "editProfile"];
 const CancelToken = axios.CancelToken;
 
 const userRequest = axios.create({
-  baseURL: "http://localhost:1337",
+  baseURL: "http://sean-services.link",
   headers: { "Content-Type": "application/json" },
 });
 
