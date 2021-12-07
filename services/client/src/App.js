@@ -12,7 +12,7 @@ import Dashboard from "./pages/dashboard";
 import { slide as Menu } from "react-burger-menu";
 import Search from "./pages/search";
 import Nav from "./component/nav";
-import "bootstrap/dist/css/bootstrap.min.css";
+import "./style/bootstrap.min.css";
 import "./style/App.css";
 import "./style/Burger.css";
 
