@@ -12,102 +12,111 @@ import Dashboard from "./pages/dashboard";
 import { slide as Menu } from "react-burger-menu";
 import Search from "./pages/search";
 import Nav from "./component/nav";
+import "bootstrap/dist/css/bootstrap.min.css";
 import "./style/App.css";
 import "./style/Burger.css";
 
 const defBtns = {
-  loginBtns: [
-    {
-      path: "/dashboard",
-      text: "Dashboard",
-    },
-    {
-      path: "/",
-      text: "Home",
-    },
-    {
-      path: "/search",
-      text: "Search",
-    },
-    {
-      path: "/uploadAvatar",
-      text: "Upload My Profile Pic",
-    },
-  ],
-  notLoginBtns: [
-    {
-      path: "/",
-      text: "Home",
-    },
-    {
-      path: "/search",
-      text: "Search",
-    },
-  ],
+	loginBtns: [
+		{
+			path: "/dashboard",
+			text: "Dashboard"
+		},
+		{
+			path: "/",
+			text: "Home"
+		},
+		{
+			path: "/search",
+			text: "Search"
+		},
+		{
+			path: "/uploadAvatar",
+			text: "Upload My Profile Pic"
+		}
+	],
+	notLoginBtns: [
+		{
+			path: "/",
+			text: "Home"
+		},
+		{
+			path: "/search",
+			text: "Search"
+		}
+	]
 };
 
 const App = () => {
-  const [popbox, setPopbox] = useState({
-    isShow: false,
-    content: "",
-  });
+	const [popbox, setPopbox] = useState({
+		isShow: false,
+		content: ""
+	});
 
-  const [isLogin, setLogin] = useState(false);
-  const token = localStorage.getItem("access_token");
+	const [isLogin, setLogin] = useState(false);
+	const token = localStorage.getItem("access_token");
 
-  if (isLogin && token) {
-    setInterval(() => {
-      tokenRefresh()
-        .then((res) => {
-          localStorage.setItem("access_token", res.data.access_token);
-        })
-        .catch((err) => console.error(err));
-    }, 300000);
-  }
+	if (isLogin && token) {
+		setInterval(() => {
+			tokenRefresh()
+				.then(res => {
+					localStorage.setItem("access_token", res.data.access_token);
+				})
+				.catch(err => console.error(err));
+		}, 300000);
+	}
 
-  useEffect(() => {
-    if (token) {
-      setLogin(true);
-    } else {
-      setLogin(false);
-    }
-  }, [token]);
+	useEffect(() => {
+		if (token) {
+			setLogin(true);
+		} else {
+			setLogin(false);
+		}
+	}, [token]);
 
-  return (
-    <>
-      <PopBoxCxt.Provider value={{ setPopbox }}>
-        <PopBox {...popbox} />
-        <LoginCxt.Provider value={{ setLogin, isLogin }}>
-          <Router>
-            <Menu>
-              {isLogin &&
-                defBtns.loginBtns.map((el) => (
-                  <Link key={el.text} to={el.path}>
-                    {el.text}
-                  </Link>
-                ))}
-              {!isLogin &&
-                defBtns.notLoginBtns.map((el) => (
-                  <Link key={el.text} to={el.path}>
-                    {el.text}
-                  </Link>
-                ))}
-            </Menu>
-            <Nav />
-            <Routes>
-              <Route exact path="/" element={<Home />}></Route>
-              <Route path="/register" element={<Register />}></Route>
-              <Route path="/login" element={<Login />}></Route>
-              <Route path="/uploadAvatar" element={<UploadAvatar />}></Route>
-              <Route path="/dashboard" element={<Dashboard />}></Route>
-              <Route path="/search" element={<Search />}></Route>
-              <Route path="/userProfile/:id" element={<UserProfile />}></Route>
-            </Routes>
-          </Router>
-        </LoginCxt.Provider>
-      </PopBoxCxt.Provider>
-    </>
-  );
+	return (
+		<>
+			<PopBoxCxt.Provider value={{ setPopbox }}>
+				<PopBox {...popbox} />
+				<LoginCxt.Provider value={{ setLogin, isLogin }}>
+					<Router>
+						<Menu>
+							{isLogin &&
+								defBtns.loginBtns.map(el => (
+									<Link key={el.text} to={el.path}>
+										{el.text}
+									</Link>
+								))}
+							{!isLogin &&
+								defBtns.notLoginBtns.map(el => (
+									<Link key={el.text} to={el.path}>
+										{el.text}
+									</Link>
+								))}
+						</Menu>
+						<Nav />
+						<Routes>
+							<Route exact path="/" element={<Home />}></Route>
+							<Route
+								path="/register"
+								element={<Register />}></Route>
+							<Route path="/login" element={<Login />}></Route>
+							<Route
+								path="/uploadAvatar"
+								element={<UploadAvatar />}></Route>
+							<Route
+								path="/dashboard"
+								element={<Dashboard />}></Route>
+							<Route path="/search" element={<Search />}></Route>
+							<Route
+								path="/userProfile/:id"
+								element={<UserProfile />}></Route>
+						</Routes>
+					</Router>
+				</LoginCxt.Provider>
+			</PopBoxCxt.Provider>
+		</>
+	);
 };
 
 export default App;
