@@ -275,7 +275,7 @@ module.exports = function (webpackEnv) {
           sourceMap: shouldUseSourceMap,
         }),
         // This is only used in production mode
-        new OptimizeCSSAssetsPlugin({
+        /* new OptimizeCSSAssetsPlugin({
           cssProcessorOptions: {
             parser: safePostCssParser,
             map: shouldUseSourceMap
@@ -292,7 +292,7 @@ module.exports = function (webpackEnv) {
           cssProcessorPluginOptions: {
             preset: ["default", { minifyFontValues: { removeQuotes: false } }],
           },
-        }),
+        }),*/
       ],
       // Automatically split vendor and commons
       // https://twitter.com/wSokra/status/969633336732905474
