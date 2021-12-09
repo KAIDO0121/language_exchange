@@ -50,6 +50,17 @@ const Register = () => {
 
   const validateCol = async ({ type, value }) => {
     if (type === "email") {
+      const pattern = /^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/;
+      if (!pattern.test(value)) {
+        setStatus((prev) => ({
+          ...prev,
+          email: {
+            status: false,
+            msg: "Invalid email format",
+          },
+        }));
+        return;
+      }
       try {
         const response = await checkEmail(value);
         if (response.data.errorCode !== 0) {
@@ -78,6 +89,17 @@ const Register = () => {
         });
       }
     } else if (type === "username") {
+      const pattern = /^(?=.{8,20}$)[a-zA-Z0-9_.-]+$/;
+      if (!pattern.test(value)) {
+        setStatus((prev) => ({
+          ...prev,
+          email: {
+            status: false,
+            msg: "User Name must be 8-20 characters, alphanumeric and special characters (_.-) is allowed.",
+          },
+        }));
+        return;
+      }
       try {
         const response = await checkUserName(value);
         if (response.data.errorCode !== 0) {

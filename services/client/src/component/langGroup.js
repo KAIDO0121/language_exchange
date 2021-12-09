@@ -85,11 +85,11 @@ const LangGroup = ({
               })
             }
           >
-            {allLang.map((el) => (
+            {allLang.map((el, idx) => (
               <option
                 value={el.name}
                 selected={el.name === form.user_acpt_langs[0].lang_name}
-                disabled={isDuplicated(el.name) || el.code === ""}
+                disabled={isDuplicated(el.name) || el.code === "" || idx === 0}
                 key={`${el.code}-0`}
               >
                 {el.name}
@@ -218,11 +218,13 @@ const LangGroup = ({
               })
             }
           >
-            {allLang.map((el) => {
+            {allLang.map((el, idx) => {
               return (
                 <option
                   selected={el.name === form.user_offer_langs[0].lang_name}
-                  disabled={isDuplicated(el.name) || el.code === ""}
+                  disabled={
+                    isDuplicated(el.name) || el.code === "" || idx === 0
+                  }
                   key={`${el.code}-2`}
                 >
                   {el.name}
