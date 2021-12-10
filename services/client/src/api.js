@@ -4,8 +4,10 @@ const authRequests = ["logout", "getMyProfile", "getMyLangs", "editProfile"];
 
 const CancelToken = axios.CancelToken;
 
+const baseURL = "http://localhost:1337";
+
 const userRequest = axios.create({
-  baseURL: "http://localhost:1337",
+  baseURL,
   headers: { "Content-Type": "application/json" },
 });
 
@@ -41,6 +43,23 @@ userRequest.interceptors.request.use((config) => {
   }
   return config;
 });
+
+userRequest.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  async function (error) {
+    const originalRequest = error.config;
+    if (error.response.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      const { data } = await tokenRefresh();
+      axios.defaults.headers.common["Authorization"] =
+        "Bearer " + data.access_token;
+      return userRequest(originalRequest);
+    }
+    return Promise.reject(error);
+  }
+);
 
 export const userLogin = (data) => userRequest.post("/api/login", data);
 export const userLogout = () => userRequest.post("/api/logout", {});

@@ -99,14 +99,20 @@ const Search = () => {
       <Row>
         <ListGroup>
           <TableHeader />
-          <List
-            height={400}
-            itemCount={list.length}
-            itemData={list}
-            itemSize={100}
-          >
-            {User}
-          </List>
+          {list.length ? (
+            <List
+              height={400}
+              itemCount={list.length}
+              itemData={list}
+              itemSize={100}
+            >
+              {User}
+            </List>
+          ) : (
+            <ListGroup.Item className="text-center">
+              No matched users...
+            </ListGroup.Item>
+          )}
         </ListGroup>
       </Row>
     </Container>

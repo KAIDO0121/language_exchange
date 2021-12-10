@@ -24,7 +24,7 @@ USER_LOGGED_OUT = "User <id={user_id}> successfully logged out."
 EMAIL_ALREADY_EXISTS = "Email already exists."
 
 allLang = [
-    { 'code' : False, 'name' : 'Please select a language' },
+    { 'code' : False, 'name' : 'Select a language' },
     { 'code' : 'ab', 'name' : 'Abkhazian' },
     { 'code' : 'aa', 'name' : 'Afar' },
     { 'code' : 'af', 'name' : 'Afrikaans' },

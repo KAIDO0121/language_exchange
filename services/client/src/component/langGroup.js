@@ -111,13 +111,14 @@ const LangGroup = ({
             type="number"
             min={1}
             max={10}
-            placeholder="Enter language level 1-10"
+            placeholder="Level 1-10"
           />
+          <Form.Text muted>Language level</Form.Text>
         </Form.Group>
         <Form.Group as={Col}>
           <Form.Select
             className="mr-2"
-            defaultValue="Please select a language"
+            defaultValue="Select a language"
             onChange={(e) =>
               selectLangHandler({
                 index: 1,
@@ -153,13 +154,14 @@ const LangGroup = ({
             min={1}
             max={10}
             type="number"
-            placeholder="Enter language level 1-10"
+            placeholder="Level 1-10"
           />
+          <Form.Text muted>Language level</Form.Text>
         </Form.Group>
         <Form.Group as={Col}>
           <Form.Select
             className="mr-2"
-            defaultValue="Please select a language"
+            defaultValue="Select a language"
             onChange={(e) =>
               selectLangHandler({
                 index: 2,
@@ -197,8 +199,9 @@ const LangGroup = ({
             min={1}
             max={10}
             type="number"
-            placeholder="Enter language level 1-10"
+            placeholder="Level 1-10"
           />
+          <Form.Text muted>Language level</Form.Text>
         </Form.Group>
       </Row>
       <Row className="mb-3">
@@ -247,13 +250,14 @@ const LangGroup = ({
             type="number"
             min={1}
             max={10}
-            placeholder="Enter language level 1-10"
+            placeholder="Level 1-10"
           />
+          <Form.Text muted>Language level</Form.Text>
         </Form.Group>
         <Form.Group as={Col}>
           <Form.Select
             className="mr-2"
-            defaultValue="Please select a language"
+            defaultValue="Select a language"
             onChange={(e) =>
               selectLangHandler({
                 index: 1,
@@ -291,13 +295,14 @@ const LangGroup = ({
             min={1}
             max={10}
             type="number"
-            placeholder="Enter language level 1-10"
+            placeholder="Level 1-10"
           />
+          <Form.Text muted>Language level</Form.Text>
         </Form.Group>
         <Form.Group as={Col}>
           <Form.Select
             className="mr-2"
-            defaultValue="Please select a language"
+            defaultValue="Select a language"
             onChange={(e) =>
               selectLangHandler({
                 index: 2,
@@ -335,8 +340,9 @@ const LangGroup = ({
             min={1}
             max={10}
             type="number"
-            placeholder="Enter language level 1-10"
+            placeholder="Level 1-10"
           />
+          <Form.Text muted>Language level</Form.Text>
         </Form.Group>
       </Row>
     </>

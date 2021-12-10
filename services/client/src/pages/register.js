@@ -89,11 +89,11 @@ const Register = () => {
         });
       }
     } else if (type === "username") {
-      const pattern = /^(?=.{8,20}$)[a-zA-Z0-9_.-]+$/;
+      const pattern = /^[a-zA-Z0-9_.-]{8,20}$/;
       if (!pattern.test(value)) {
         setStatus((prev) => ({
           ...prev,
-          email: {
+          username: {
             status: false,
             msg: "User Name must be 8-20 characters, alphanumeric and special characters (_.-) is allowed.",
           },
@@ -204,6 +204,34 @@ const Register = () => {
           <Form.Group className="mb-3">
             <InputGroup hasValidation>
               <Form.Control
+                isValid={status.username.status === true}
+                isInvalid={status.username.status === false}
+                value={profile.username}
+                onChange={(e) =>
+                  setProfile((prev) => ({
+                    ...prev,
+                    username: e.target.value,
+                  }))
+                }
+                onBlur={(e) =>
+                  validateCol({
+                    type: "username",
+                    value: e.target.value,
+                  })
+                }
+                type="text"
+                placeholder="Your username"
+              />
+              {status.username.status === false && (
+                <Form.Control.Feedback type="invalid">
+                  {status.username.msg}
+                </Form.Control.Feedback>
+              )}
+            </InputGroup>
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <InputGroup hasValidation>
+              <Form.Control
                 isValid={status.email?.status === true}
                 isInvalid={status.email?.status === false}
                 value={profile.email}
@@ -254,34 +282,6 @@ const Register = () => {
               {status.password.status === false && (
                 <Form.Control.Feedback type="invalid">
                   {status.password.msg}
-                </Form.Control.Feedback>
-              )}
-            </InputGroup>
-          </Form.Group>
-          <Form.Group className="mb-3">
-            <InputGroup hasValidation>
-              <Form.Control
-                isValid={status.username.status === true}
-                isInvalid={status.username.status === false}
-                value={profile.username}
-                onChange={(e) =>
-                  setProfile((prev) => ({
-                    ...prev,
-                    username: e.target.value,
-                  }))
-                }
-                onBlur={(e) =>
-                  validateCol({
-                    type: "username",
-                    value: e.target.value,
-                  })
-                }
-                type="text"
-                placeholder="Your username"
-              />
-              {status.username.status === false && (
-                <Form.Control.Feedback type="invalid">
-                  {status.username.msg}
                 </Form.Control.Feedback>
               )}
             </InputGroup>
