@@ -4,7 +4,10 @@ const authRequests = ["logout", "getMyProfile", "getMyLangs", "editProfile"];
 
 const CancelToken = axios.CancelToken;
 
-const baseURL = "http://sean-services.link/";
+const baseURL =
+  !process.env.NODE_ENV || process.env.NODE_ENV === "development"
+    ? "http://localhost:1337"
+    : "http://sean-services.link";
 
 const userRequest = axios.create({
   baseURL,
@@ -53,6 +56,7 @@ userRequest.interceptors.response.use(
     if (error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       const { data } = await tokenRefresh();
+      localStorage.setItem("access_token", data.access_token);
       axios.defaults.headers.common["Authorization"] =
         "Bearer " + data.access_token;
       return userRequest(originalRequest);

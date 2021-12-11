@@ -57,7 +57,7 @@ const App = () => {
           localStorage.setItem("access_token", res.data.access_token);
         })
         .catch((err) => console.error(err));
-    }, 300000);
+    }, 295000);
   }
 
   useEffect(() => {

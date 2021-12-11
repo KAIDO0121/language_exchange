@@ -8,6 +8,7 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "sqlite://")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JWT_BLACKLIST_ENABLED = True  # enable blacklist feature
+    PROPAGATE_EXCEPTIONS = True
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(seconds=300)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
     JWT_BLACKLIST_TOKEN_CHECKS =[
