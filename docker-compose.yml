@@ -29,6 +29,3 @@ services:
       dockerfile: Dockerfile.prod
     ports:
       - 80:80
-
-volumes:
-  postgres_data_prod:
