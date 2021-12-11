@@ -185,9 +185,13 @@ const Dashboard = () => {
                     </Form.Control.Feedback>
                   )}
                 </InputGroup>
+                <Form.Text muted>File size should less than 1Mb</Form.Text>
                 <Form.Text muted>
                   Allowed extensions: .jpg, .jpe, .jpeg, .png, .gif, .svg, .bmp
-                  )
+                </Form.Text>
+                <Form.Text muted>
+                  Allowed file names: starts with a-z A-Z 0-9 at least one time
+                  only contains a-z A-Z 0-9 and _ () . -
                 </Form.Text>
               </Row>
             </Form>

@@ -75,7 +75,9 @@ const UploadAvatar = () => {
                 )}
               </InputGroup>
               <Form.Text muted>
-                Allowed extensions: .jpg, .jpe, .jpeg, .png, .gif, .svg, .bmp )
+                Allowed extensions: .jpg, .jpe, .jpeg, .png, .gif, .svg, .bmp
+                Allowed file names: starts with a-z A-Z 0-9 at least one time
+                only contains a-z A-Z 0-9 and _ () . -
               </Form.Text>
             </Form.Group>
             <Button

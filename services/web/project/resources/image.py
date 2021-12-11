@@ -24,10 +24,12 @@ class AvatarUpload(Resource):
         if ext[1:] not in IMAGES :
             return {"message": f'Extension: {ext} is illegal', "errorCode": 1 }, 200
 
-        fileName = image_helper.is_filename_safe(data["image"].filename)
+        is_file_name_legal = image_helper.is_filename_safe(data["image"].filename)
 
-        if not fileName :
-            return {"message": f'Filename: {fileName} is illegal', "errorCode": 2 }, 200
+        filename = image_helper._retrieve_filename(data["image"].filename)
+
+        if not is_file_name_legal :
+            return {"message": f'Filename: {filename} is illegal', "errorCode": 2 }, 200
 
         user = User.find_by_user_id(get_jwt_identity())
 
