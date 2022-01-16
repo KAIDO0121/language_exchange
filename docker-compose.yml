@@ -12,8 +12,6 @@ services:
       - ./.env.prod
     depends_on:
       - db
-    entrypoint:
-      - /home/app/web/entrypoint.prod.sh
   db:
     image: postgres:13-alpine
     volumes:

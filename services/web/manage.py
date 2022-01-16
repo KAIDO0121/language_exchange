@@ -5,12 +5,9 @@ from project.models import db
 
 app = create_app()
 manager = Manager(app)
+Migrate(app, db)
+manager.add_command('db', MigrateCommand)
 
-@manager.command
-def create_db():
-    db.drop_all()
-    db.create_all()
-    db.session.commit()
 
 @manager.command
 def runserver():
